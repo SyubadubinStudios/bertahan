@@ -1,0 +1,12 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Bertahan.MainWindow"
+        Title="Bertahan!" Width="1280" Height="720" MinWidth="960" MinHeight="540"
+        Background="Black" WindowStartupLocation="CenterScreen">
+  <Grid x:Name="Root" Background="Black">
+    <ContentControl x:Name="HudHost" IsHitTestVisible="False" />
+    <Viewbox x:Name="ScreenBox" Stretch="Uniform">
+      <Panel x:Name="ScreenHost" Width="1280" Height="720" />
+    </Viewbox>
+  </Grid>
+</Window>

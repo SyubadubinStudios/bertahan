@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "blender": {
+      "type": "stdio",
+      "command": "C:/Users/Admin/blender-mcp/venv/Scripts/blender-mcp.exe",
+      "args": [],
+      "env": {
+        "BLENDER_MCP_HOST": "localhost",
+        "BLENDER_MCP_PORT": "9876",
+        "BLENDER_PATH": "D:/Program Files/Blender Foundation/Blender 5.2/blender.exe"
+      }
+    }
+  }
+}

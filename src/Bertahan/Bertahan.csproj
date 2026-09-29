@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>Bertahan</RootNamespace>
+    <AssemblyName>Bertahan</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.2" />
+    <PackageReference Include="ThreeNet" Version="0.6.0" />
+    <PackageReference Include="ThreeNet.Avalonia" Version="0.6.0" />
+    <PackageReference Include="ThreeNet.Native" Version="0.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Assets\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

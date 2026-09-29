@@ -1,0 +1,23 @@
+name: Bertahan
+description:
+
+game play:
+game survival melawan zombie setting latar belakang perkampungan di indonesia dengan tampilan third person, karakternya bisa pilih dari anggota keluarga: bapak, ibu, kaka, ade, kake, nene. alat tempur melawan zombie macam-macam bisa linggis, kampak, pacul, sapu, sampai senapan api dan bom molotof, zombie-nya pun beragam dari yang kecil sampai yang besar, buat dengan gaya yang lucu dan menarik.
+
+game asset:
+di folder @art terdapat game art yang menjadi referensi untuk membuat asset game 3D antara lain: gameplay, level 1-4, karakter player (bisa pilih), karakter musuh dan boss level 1-4. 
+
+instruction:
+- buatkan game 3D berdasarkan gameplay diatas, buatkan asset game (karakter, environment, npc, dsb), modelling, rigging, animating dengan blender melalui MCP (https://www.blender.org/lab/mcp-server/) berdasarkan referensi game asset di folder art
+- buat dengan .NET 10, Avalonia, dan library ThreeNet (https://github.com/DotNetVibeCoderz/Vibe_Graphics/tree/main/ThreeNet), lengkapi juga dengan efek-efek yang keren, sounds, music 
+- kembangkan game dari game play awal, lengkapi aspek-aspek lain yang diperlukan yang membuat game semakin seru dan lengkap 
+- pada menu About tambahkan info: Dibuat oleh Ariana Mischa Fadhila dari Subadubin Studios
+- opening game: animasi cerita latar belakang datangnya zombie yang menyerang beberapa perkampungan, dan sebuah keluarga pemberani yang menjadi hero untuk survive.
+- menu game overlay, gambar background 3d desa yang asri, keren, hidup, dengan berbagai kesibukan warganya dan tiba-tiba ada zombie mondar-mandir menggangu warga
+- New Game > Input Nama (default: Si Otong) > Tingkat Kesulitan: Bayi (easy), Pemberani (medium), Mimpi Buruk (hard) > Pilih Player Karakter > Mulai
+- Level Game: 1-4, level 5 - 10 (to be released)
+- Jika live player habis mengulang level tersebut, maksimal 3x, jika habis mulai dari level 1 lagi.
+- Top Score (nama player dengan score tertinggi di kategorikan sesuai level game)
+- Options: Atur Sound, Music, Grafik, dsb. 
+- About - scrolling credits
+- Exit
