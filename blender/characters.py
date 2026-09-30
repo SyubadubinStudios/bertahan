@@ -81,7 +81,7 @@ class Spec:
             skin=SKIN["tan"], hair=0x2B1D14, hair_style="short", top=None, top_sleeve="short",
             bottom=None, bottom_style="pants", shoes=0x2A2A2A, socks=None, extras=(), brows=0x2B1D14,
             eye=0x20180F, blush=0.5, posture=None, bounce=1.0, weapon="pentungan", face="cute", eye_glow=0xFFE14A,
-            ears=1.0, weapons=True, hooks=()))
+            ears=1.0, weapons=True, hooks=(), extra_bones=(), limb=1.0))
         self.__dict__.update(kw)
 
 
@@ -89,6 +89,8 @@ def build_human(name, s):
     """Builds mesh + armature for spec `s`. Returns (armature, mesh)."""
     j = T.humanoid_joints(s.height, s.head, s.shoulder, s.hip_w, s.leg, s.arm)
     arm = T.build_armature(name + "_rig", j)
+    # extra bones (wings, tails) get their positions from the joints
+    T.add_bones(arm, s.extra_bones(j) if callable(s.extra_bones) else s.extra_bones)
     skin = T.mat(name + "_skin", s.skin, 0.65)
     top = s.top if not isinstance(s.top, int) else T.mat(name + "_top", s.top, 0.8)
     bottom = s.bottom if not isinstance(s.bottom, int) else T.mat(name + "_bottom", s.bottom, 0.8)
@@ -183,7 +185,7 @@ def build_human(name, s):
     P.append(T.sphere("belly", Vector((0, 0, hip.z + torso_h * 0.38)), (s.shoulder * 0.85 * g, 0.15 * dp * g * 1.05, torso_h * 0.36), top, "spine", seg=16, rings=10))
     for sx in (-1, 1):
         sh = j["shoulder_" + ("L" if sx > 0 else "R")]
-        P.append(T.sphere("shoulder", sh + Vector((-sx * 0.02, 0, -0.01)), 0.075 * g, top, "chest", seg=10, rings=8))
+        P.append(T.sphere("shoulder", sh + Vector((-sx * 0.02, 0, -0.01)), 0.075 * g * s.limb, top, "chest", seg=10, rings=8))
     if "collar" in s.extras:
         col = T.mat(name + "_collar", 0xF5F5F0, 0.8)
         for sx in (-1, 1):
@@ -218,16 +220,17 @@ def build_human(name, s):
         bd = T.mat("badge", 0xE8C04A, 0.4, 0.6)
         P.append(T.box("badge", Vector((0.08, -0.155 * g, chest.z + 0.06)), (0.05, 0.015, 0.05), bd, "chest", bevel=0.005))
 
-    # ---- arms
+    # ---- arms (limb thickens arms and legs for brutes like the genderuwo)
     sleeve = top
+    lg = g * s.limb
     for side in ("L", "R"):
         sh, el, wr, fi = (j[k + "_" + side] for k in ("shoulder", "elbow", "wrist", "fingers"))
         upper_mat = skin if s.top_sleeve == "none" else sleeve
-        P.append(T.cyl("upperarm", sh, el, 0.055 * g, upper_mat, r1=0.048 * g, bone="upperarm_" + side, verts=10))
+        P.append(T.cyl("upperarm", sh, el, 0.055 * lg, upper_mat, r1=0.048 * lg, bone="upperarm_" + side, verts=10))
         fore_mat = sleeve if s.top_sleeve == "long" else skin
-        P.append(T.cyl("forearm", el, wr, 0.046 * g, fore_mat, r1=0.04 * g, bone="forearm_" + side, verts=10))
-        P.append(T.sphere("elbow", el, 0.048 * g, fore_mat if s.top_sleeve == "long" else upper_mat, "upperarm_" + side, seg=8, rings=6))
-        P.append(T.sphere("hand", (wr + fi) * 0.5, (0.05, 0.042, 0.065), skin, "hand_" + side, seg=10, rings=8))
+        P.append(T.cyl("forearm", el, wr, 0.046 * lg, fore_mat, r1=0.04 * lg, bone="forearm_" + side, verts=10))
+        P.append(T.sphere("elbow", el, 0.048 * lg, fore_mat if s.top_sleeve == "long" else upper_mat, "upperarm_" + side, seg=8, rings=6))
+        P.append(T.sphere("hand", (wr + fi) * 0.5, (0.05 * s.limb, 0.042 * s.limb, 0.065 * s.limb), skin, "hand_" + side, seg=10, rings=8))
         sxh = 1 if side == "L" else -1
         P.append(T.sphere("thumb", (wr + fi) * 0.5 + Vector((-sxh * 0.03, -0.035, 0.02)), (0.018, 0.018, 0.03), skin, "hand_" + side, seg=8, rings=6,
                           rot=(0.4, 0, 0)))
@@ -238,15 +241,15 @@ def build_human(name, s):
         thigh_mat = bottom if s.bottom_style in ("pants", "shorts", "skirt", "sarung") else skin
         shin_mat = bottom if s.bottom_style in ("pants", "skirt", "sarung") else skin
         if s.bottom_style == "shorts":
-            P.append(T.cyl("thigh", hp + Vector((0, 0, 0.04)), kn + (hp - kn) * 0.3, 0.085 * g, bottom, r1=0.075 * g, bone="thigh_" + side, verts=10))
-            P.append(T.cyl("thigh_skin", kn + (hp - kn) * 0.35, kn, 0.055 * g, skin, bone="thigh_" + side, verts=10))
+            P.append(T.cyl("thigh", hp + Vector((0, 0, 0.04)), kn + (hp - kn) * 0.3, 0.085 * lg, bottom, r1=0.075 * lg, bone="thigh_" + side, verts=10))
+            P.append(T.cyl("thigh_skin", kn + (hp - kn) * 0.35, kn, 0.055 * lg, skin, bone="thigh_" + side, verts=10))
         else:
-            P.append(T.cyl("thigh", hp + Vector((0, 0, 0.04)), kn, 0.07 * g, thigh_mat, r1=0.06 * g, bone="thigh_" + side, verts=10))
-        P.append(T.sphere("knee", kn, 0.058 * g, shin_mat, "shin_" + side, seg=8, rings=6))
-        P.append(T.cyl("shin", kn, an + Vector((0, 0, 0.03)), 0.056 * g, shin_mat, r1=0.045 * g, bone="shin_" + side, verts=10))
+            P.append(T.cyl("thigh", hp + Vector((0, 0, 0.04)), kn, 0.07 * lg, thigh_mat, r1=0.06 * lg, bone="thigh_" + side, verts=10))
+        P.append(T.sphere("knee", kn, 0.058 * lg, shin_mat, "shin_" + side, seg=8, rings=6))
+        P.append(T.cyl("shin", kn, an + Vector((0, 0, 0.03)), 0.056 * lg, shin_mat, r1=0.045 * lg, bone="shin_" + side, verts=10))
         if s.socks:
-            P.append(T.cyl("sock", an + Vector((0, 0, 0.0)), an + Vector((0, 0, 0.12)), 0.047 * g, T.mat("socks", s.socks, 0.9), bone="shin_" + side, verts=10))
-        P.append(T.box("shoe", (an + to) * 0.5 + Vector((0, 0, -0.01)), (0.11 * g, 0.24, 0.09), shoes, "foot_" + side, bevel=0.035))
+            P.append(T.cyl("sock", an + Vector((0, 0, 0.0)), an + Vector((0, 0, 0.12)), 0.047 * lg, T.mat("socks", s.socks, 0.9), bone="shin_" + side, verts=10))
+        P.append(T.box("shoe", (an + to) * 0.5 + Vector((0, 0, -0.01)), (0.11 * lg, 0.24 * s.limb, 0.09), shoes, "foot_" + side, bevel=0.035))
 
     # ---- hips / skirts
     P.append(T.sphere("hips", hip + Vector((0, 0, 0.03)), (s.hip_w * 1.9 * g, 0.15 * dp * g, 0.12), bottom if isinstance(bottom, type(skin)) else skin, "hips", seg=14, rings=8))

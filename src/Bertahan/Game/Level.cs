@@ -37,7 +37,10 @@ public sealed class Level
     /// <summary>Plants that bend in the wind (see <see cref="Atmosphere"/>).</summary>
     public List<Swayer> Swayers { get; } = [];
 
-    public bool IsNight => Def.Time == TimeOfDay.Malam;
+    public bool IsNight => Def.Time is TimeOfDay.Malam or TimeOfDay.Kutukan;
+
+    /// <summary>Spots that keep burning for the whole level (burning houses, braziers).</summary>
+    public List<Vector3> FirePoints { get; } = [];
 
     public bool InSlowZone(Vector2 p)
     {
@@ -65,7 +68,7 @@ public sealed class Occluder(Node node, Vector2 centre, float radius)
 }
 
 /// <summary>Builds the four levels from Blender props, a painted ground and lights.</summary>
-public sealed class LevelBuilder
+public sealed partial class LevelBuilder
 {
     private const float World = 96f;
     private const float Half = 38f;
@@ -108,8 +111,26 @@ public sealed class LevelBuilder
             case "pasar":
                 Pasar();
                 break;
-            default:
+            case "kuburan":
                 Kuburan();
+                break;
+            case "jembatan":
+                Jembatan();
+                break;
+            case "sekolah":
+                Sekolah();
+                break;
+            case "kuburan_kuno":
+                KuburanKuno();
+                break;
+            case "hutan":
+                Hutan();
+                break;
+            case "masjid_rusak":
+                MasjidRusak();
+                break;
+            default:
+                Candi();
                 break;
         }
 

@@ -25,6 +25,7 @@ public sealed class WaveDirector
     private readonly GameSession _game;
     private readonly List<Queue> _queues = [];
     private readonly Random _rng = new(7);
+    private readonly HashSet<string> _bossSpotUsed = [];
     private float _timer;
 
     public WaveDirector(GameSession game)
@@ -86,6 +87,14 @@ public sealed class WaveDirector
         }
     }
 
+    /// <summary>Jumps straight to a wave (screenshot/test runs).</summary>
+    public void SkipTo(int wave)
+    {
+        Wave = Math.Clamp(wave, 0, WaveCount - 1);
+        StartCountdown();
+        _timer = 0.5f;
+    }
+
     private void StartCountdown()
     {
         Phase = WavePhase.Countdown;
@@ -126,15 +135,17 @@ public sealed class WaveDirector
                 continue;
             }
 
-            bool boss = q.Zombie is "dukun" or "genderuwo";
-            Vector2 at = boss ? _game.Level.BossSpot : PickSpawnPoint();
+            ZombieDef def = ZombieDef.Get(q.Zombie);
+            bool boss = def.Boss;
+            // the first boss of a kind rises at its lair; rooted bosses always do
+            Vector2 at = boss && (def.Stationary || !_bossSpotUsed.Contains(q.Zombie)) ? _game.Level.BossSpot : PickSpawnPoint();
             if (_game.SpawnZombie(q.Zombie, at))
             {
                 q.Remaining--;
                 q.Timer = q.Interval;
-                if (boss)
+                if (boss && _bossSpotUsed.Add(q.Zombie))
                 {
-                    _game.ShowBanner(q.Zombie == "dukun" ? "DUKUN ZOMBI!" : "GENDERUWO ZOMBI!", q.Zombie == "dukun" ? "Hentikan ritualnya!" : "Hati-hati serudukannya!");
+                    _game.ShowBanner(def.Name.ToUpperInvariant() + "!", def.Title);
                 }
             }
             else
@@ -162,14 +173,19 @@ public sealed class WaveDirector
         return points.OrderByDescending(p => Vector2.Distance(p, player)).First();
     }
 
-    /// <summary>The dukun calls helpers around himself.</summary>
-    public void Summon(Vector2 around, int count)
+    /// <summary>A boss or caster calls helpers around itself.</summary>
+    public void Summon(Vector2 around, int count, string[] kinds)
     {
+        if (kinds.Length == 0)
+        {
+            return;
+        }
+
         for (int i = 0; i < count; i++)
         {
             float a = (i / (float)count * MathF.Tau) + (float)_rng.NextDouble();
-            Vector2 p = _game.Level.Nav.Resolve(around + (new Vector2(MathF.Cos(a), MathF.Sin(a)) * 3f), 0.4f);
-            _game.SpawnZombie(_rng.Next(3) == 0 ? "tuyul" : "warga", p);
+            Vector2 p = _game.Level.Nav.Resolve(around + (new Vector2(MathF.Cos(a), MathF.Sin(a)) * 4f), 0.4f);
+            _game.SpawnZombie(kinds[_rng.Next(kinds.Length)], p);
         }
     }
 

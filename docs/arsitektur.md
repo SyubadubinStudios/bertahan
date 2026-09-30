@@ -50,7 +50,8 @@ flowchart TB
 | `Game/Campaign.cs` | Petualangan: nama, karakter, level, skor total, kesempatan mengulang |
 | `Game/GameSession.cs` | Satu permainan level: scene, aktor, aturan, nyawa, skor, cutaway |
 | `Game/Player.cs`, `Zombie.cs`, `Combat.cs`, `Pickups.cs`, `WaveDirector.cs` | Sistem gameplay |
-| `Game/Level.cs` | `LevelBuilder`: menyusun 4 level dari prop Blender, lalu mendaftarkan rintangan, penghalang pandangan, dan tanaman |
+| `Game/Level.cs` | `LevelBuilder`: menyusun level 1-4 dari prop Blender, lalu mendaftarkan rintangan, penghalang pandangan, dan tanaman |
+| `Game/LevelLanjut.cs` | Lanjutan `LevelBuilder` untuk level 5-10: sungai dan jembatan, ruang kelas, kolam/rawa, rumah terbakar, candi; titik api tetap (`FirePoints`) |
 | `Game/Navigation.cs` | Tabrakan 2D (kotak dan lingkaran) serta flow field menuju pemain |
 | `Game/Models.cs` | `PropLibrary` (prototipe GLB + clone) dan `AnimatedModel` (blending klip dengan bobot) |
 | `Game/Atmosphere.cs` | Langit, awan, kabut, hujan, petir, kunang-kunang, angin |

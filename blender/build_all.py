@@ -19,12 +19,15 @@ import zombies  # noqa: E402
 import props  # noqa: E402
 import villagers  # noqa: E402
 import animals  # noqa: E402
+import props_lanjut  # noqa: E402
+import zombies_tambahan  # noqa: E402
+import bosses  # noqa: E402
 
-for module in (btk, weapons, anims, characters, zanims, zombies, props, villagers, animals):
+for module in (btk, weapons, anims, characters, zanims, zombies, props, villagers, animals, props_lanjut, zombies_tambahan, bosses):
     importlib.reload(module)
 
 
-def main(groups=("characters", "villagers", "animals", "zombies", "weapons", "props")):
+def main(groups=("characters", "villagers", "animals", "zombies", "weapons", "props", "bosses")):
     report = {}
     if "characters" in groups:
         report["characters"] = {k: len(v["clips"]) for k, v in characters.build_all().items()}
@@ -34,11 +37,14 @@ def main(groups=("characters", "villagers", "animals", "zombies", "weapons", "pr
         report["animals"] = {k: len(v["clips"]) for k, v in animals.build_all().items()}
     if "zombies" in groups:
         report["zombies"] = {k: len(v["clips"]) for k, v in zombies.build_all().items()}
+        report["zombies_tambahan"] = list(zombies_tambahan.build_all())
+    if "bosses" in groups:
+        report["bosses"] = list(bosses.build_all())
     if "weapons" in groups:
         weapons.export_pickups()
         report["weapons"] = list(weapons.BUILDERS)
     if "props" in groups:
-        report["props"] = len(props.build_all())
+        report["props"] = len(props.build_all()) + len(props_lanjut.build_all())
     btk.clear_scene()
     return report
 

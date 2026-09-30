@@ -340,6 +340,23 @@ def build_custom_armature(name, bones):
     return arm
 
 
+def add_bones(arm, bones):
+    """Adds extra bones (name, head, tail, parent) to an existing armature, e.g.
+    wings or a tail on top of the standard humanoid rig."""
+    if not bones:
+        return arm
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.object.mode_set(mode='EDIT')
+    eb = arm.data.edit_bones
+    for bname, head, tail, parent in bones:
+        b = eb.new(bname)
+        b.head, b.tail, b.roll = Vector(head), Vector(tail), 0.0
+        if parent:
+            b.parent = eb[parent]
+    bpy.ops.object.mode_set(mode='OBJECT')
+    return arm
+
+
 def skin(mesh_obj, arm):
     """Parents the mesh to the armature with an Armature modifier (vertex groups already set)."""
     mesh_obj.parent = arm

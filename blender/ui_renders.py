@@ -189,3 +189,27 @@ def logo():
 
 def render_all():
     return {"portraits": len(portraits()), "zombies": len(zombie_icons()), "weapons": len(weapon_icons()), "logo": logo()}
+
+
+def extra_zombie_icons():
+    """Icons for the additional enemies and the level 5-10 bosses, framed from their bounds."""
+    import bosses as B
+    import zombies_tambahan as ZT
+    os.makedirs(UI, exist_ok=True)
+    out = []
+    jobs = [(n, ZT.build) for n in ZT.NAMES] + [(n, B.build) for n in B.NAMES]
+    for name, build in jobs:
+        build(name, export=False)
+        _setup((256, 256))
+        meshes = [o for o in bpy.data.objects if o.type == 'MESH']
+        pts = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
+        lo = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
+        hi = Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
+        size = max((hi - lo).x, (hi - lo).z)
+        centre = (lo + hi) * 0.5
+        _camera(tuple(centre), (size * 0.4, -size * 1.9 - 0.6, size * 0.15), lens=50)
+        _lights()
+        path = os.path.join(UI, f"zombie_{name}.png")
+        _render(path)
+        out.append(path)
+    return out

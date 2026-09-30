@@ -8,6 +8,13 @@ Setiap tempat di Bertahan punya langit, cuaca, dan angin sendiri. Semuanya diatu
 |---|---|
 | ![Gerbang Kampung](images/suasana-level-1.jpg) **Gerbang Kampung:** siang cerah, awan dan bayangannya, debu tertiup angin | ![Sawah Berhantu](images/suasana-level-2.jpg) **Sawah Berhantu:** malam berbintang, kabut tipis di atas sawah, kunang-kunang |
 | ![Pasar Lama](images/suasana-level-3.jpg) **Pasar Lama:** langit senja ungu-jingga, awan tebal, gerimis | ![Kuburan Terbengkalai](images/suasana-level-4.jpg) **Kuburan Terbengkalai:** hujan, petir, kabut hijau yang misterius, cahaya arwah hijau |
+| ![Jembatan Bambu](images/suasana-level-5.jpg) **Jembatan Bambu:** sungai berkabut kebiruan, kunang-kunang | ![Sekolah Terbengkalai](images/suasana-level-6.jpg) **Sekolah Terbengkalai:** malam kelabu, gerimis tipis |
+| ![Kuburan Kuno](images/suasana-level-7.jpg) **Kuburan Kuno:** kabut hijau pekat, petir, arwah hijau | ![Hutan Larangan](images/suasana-level-8.jpg) **Hutan Larangan:** kabut rawa, banyak kunang-kunang, jamur menyala |
+| ![Masjid Rusak](images/suasana-level-9.jpg) **Masjid Rusak:** langit Kutukan, angin kencang, petir, bara dari rumah terbakar | ![Candi Terlarang](images/suasana-level-10.jpg) **Candi Terlarang:** langit Kutukan, kabut merah, obor dan bara api |
+
+### Langit Kutukan
+
+Level 9 dan 10 memakai waktu `Kutukan` (`TimeOfDay.Kutukan`): langit merah gelap dengan pusaran hijau yang berputar (sesuai `art/level 5-10.png`), awan dan bukit kemerahan, cahaya matahari merah, kabut merah tua, dan partikel bara (`Embers`) yang naik dari api. Titik api tetap (`Level.FirePoints`) dari rumah terbakar dan obor terus mengeluarkan api setiap frame.
 
 ## Ringkasan per tempat
 

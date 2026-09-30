@@ -67,8 +67,8 @@ public sealed class GameSession : IDisposable
         Fauna = new Fauna(Scene, actors, audio, Fx, level.Number * 31, (p, r) => Level.Nav.Resolve(p, r), 36f);
         PopulateFauna(level);
 
-        DifficultySpeed = (1f + ((level.Number - 1) * 0.06f)) * difficulty.EnemySpeed;
-        DifficultyDamage = (1f + ((level.Number - 1) * 0.12f)) * difficulty.EnemyDamage;
+        DifficultySpeed = (1f + ((level.Number - 1) * 0.04f)) * difficulty.EnemySpeed;
+        DifficultyDamage = (1f + ((level.Number - 1) * 0.08f)) * difficulty.EnemyDamage;
         Level.Nav.UpdateField(Player.Position);
         Camera.Yaw = 0f;
         Camera.Snap(Player.World);
@@ -157,6 +157,8 @@ public sealed class GameSession : IDisposable
         {
             TimeOfDay.Sore => (new Vector3(0.75f, -0.42f, -0.5f), new Vector3(1f, 0.62f, 0.36f), 2.9f,
                 new Vector3(0.55f, 0.45f, 0.62f), 0.42f, new Vector3(0.95f, 0.55f, 0.32f), 0.004f),
+            TimeOfDay.Kutukan => (new Vector3(-0.3f, -0.8f, 0.5f), new Vector3(1f, 0.45f, 0.35f), 0.95f,
+                new Vector3(0.45f, 0.25f, 0.3f), 0.34f, new Vector3(0.08f, 0.02f, 0.03f), 0.005f),
             TimeOfDay.Malam => (new Vector3(-0.35f, -0.8f, 0.45f), new Vector3(0.55f, 0.65f, 1f), 0.75f,
                 new Vector3(0.3f, 0.38f, 0.65f), 0.32f, new Vector3(0.02f, 0.03f, 0.075f), 0.0055f),
             _ => (new Vector3(-0.45f, -0.85f, -0.3f), new Vector3(1f, 0.96f, 0.88f), 3.3f,
@@ -174,7 +176,12 @@ public sealed class GameSession : IDisposable
             Background = new Vector4(sky, 1f),
             AmbientColor = ambient,
             AmbientIntensity = ambientI,
-            FogColor = time == TimeOfDay.Malam ? new Vector3(0.025f, 0.04f, 0.09f) : sky,
+            FogColor = time switch
+            {
+                TimeOfDay.Malam => new Vector3(0.025f, 0.04f, 0.09f),
+                TimeOfDay.Kutukan => new Vector3(0.09f, 0.025f, 0.03f),
+                _ => sky,
+            },
             FogDensity = fog,
             // Three.Net also applies linear fog between FogStart and FogEnd (10-100 m by default): keep it out of the way
             FogStart = 1000f,
@@ -194,6 +201,12 @@ public sealed class GameSession : IDisposable
             "pasar" => [("ayam", 4, 3f), ("ayam", 3, 2.5f), ("kucing", 1, 3f), ("kucing", 1, 3f), ("anjing", 1, 4f), ("burung", 5, 4f),
                 ("pedagang", 1, 3f), ("jamu", 1, 4f), ("bakso", 1, 4f), ("ojek", 1, 3f), ("guru", 1, 3f)],
             "kuburan" => [("ular", 2, 5f), ("ular", 1, 4f), ("kucing", 1, 4f), ("burung", 4, 5f), ("anjing", 1, 4f), ("hansip", 1, 5f)],
+            "jembatan" => [("burung", 5, 4f), ("ayam", 3, 3f), ("kucing", 1, 3f), ("kambing", 2, 3f), ("petani", 1, 5f), ("ojek", 1, 4f)],
+            "sekolah" => [("kucing", 2, 4f), ("burung", 4, 4f), ("anjing", 1, 4f), ("guru", 1, 4f), ("bocah", 2, 5f)],
+            "kuburan_kuno" => [("ular", 3, 5f), ("burung", 4, 5f), ("kucing", 1, 4f), ("ustad", 1, 4f)],
+            "hutan" => [("ular", 3, 6f), ("burung", 6, 5f), ("kambing", 1, 4f)],
+            "masjid_rusak" => [("kucing", 2, 4f), ("anjing", 1, 5f), ("ayam", 3, 3f), ("ustad", 1, 4f), ("hansip", 1, 5f), ("pedagang", 1, 4f)],
+            "candi" => [("ular", 3, 5f), ("burung", 3, 5f)],
             _ => [("ayam", 4, 3f), ("ayam", 3, 3f), ("kambing", 2, 3f), ("sapi", 1, 3f), ("kucing", 1, 3f), ("anjing", 1, 4f), ("burung", 5, 4f),
                 ("burung", 3, 3f), ("petani", 1, 5f), ("pedagang", 1, 4f), ("hansip", 1, 5f), ("bocah", 2, 4f)],
         };
@@ -213,7 +226,11 @@ public sealed class GameSession : IDisposable
 
     private void BuildPools(LevelDef level, Node parent)
     {
-        Dictionary<string, int> caps = new() { ["warga"] = 12, ["tuyul"] = 7, ["pocong"] = 7, ["satpam"] = 5, ["kuntilanak"] = 3, ["genderuwo"] = 2, ["dukun"] = 1 };
+        Dictionary<string, int> caps = new()
+        {
+            ["warga"] = 12, ["tuyul"] = 8, ["pocong"] = 7, ["satpam"] = 5, ["kuntilanak"] = 4, ["genderuwo"] = 2, ["dukun"] = 1,
+            ["tuyul_serdadu"] = 10, ["siluman_harimau"] = 6, ["pocong_penjaga"] = 6, ["kuntilanak_geni"] = 4, ["genderuwo_raksasa"] = 3, ["dukun_santet"] = 2,
+        };
         Dictionary<string, int> need = [];
         foreach (WaveDef wave in level.Waves)
         {
@@ -223,10 +240,13 @@ public sealed class GameSession : IDisposable
             }
         }
 
-        if (need.ContainsKey("dukun"))
+        // make room in the pools for whatever bosses and casters summon
+        foreach (string id in need.Keys.ToList())
         {
-            need["warga"] = need.GetValueOrDefault("warga") + 4;
-            need["tuyul"] = need.GetValueOrDefault("tuyul") + 3;
+            foreach (string helper in ZombieDef.Get(id).Summons.Distinct())
+            {
+                need[helper] = need.GetValueOrDefault(helper) + 3;
+            }
         }
 
         int seed = 1;
@@ -234,7 +254,7 @@ public sealed class GameSession : IDisposable
         {
             Queue<Zombie> queue = new();
             ZombieDef def = ZombieDef.Get(id);
-            for (int i = 0; i < Math.Min(count, caps[id]); i++)
+            for (int i = 0; i < Math.Min(count, caps.GetValueOrDefault(id, 1)); i++)
             {
                 AnimatedModel model = AnimatedModel.Load(Scene, "zombie_" + id, parent);
                 Zombie z = new(this, def, model, seed++);
@@ -261,7 +281,9 @@ public sealed class GameSession : IDisposable
             queue.Enqueue(z);
             if (!z.Active)
             {
-                z.Spawn(Level.Nav.Resolve(at, z.Def.Radius), (1f + ((Level.Def.Number - 1) * 0.1f)) * Difficulty.EnemyHealth);
+                // bosses scale more gently with the level number than the crowd
+                float levelScale = 1f + ((Level.Def.Number - 1) * (z.IsBoss ? 0.05f : 0.1f));
+                z.Spawn(z.Def.Stationary ? at : Level.Nav.Resolve(at, z.Def.Radius), levelScale * Difficulty.EnemyHealth);
                 return true;
             }
         }
@@ -307,7 +329,7 @@ public sealed class GameSession : IDisposable
             Audio.Play("sfx_pickup", 0.7f, 1.3f);
         }
 
-        if (z.Def.Id == "dukun")
+        if (z.IsBoss)
         {
             Fx.Confetti(z.World);
         }
@@ -511,6 +533,14 @@ public sealed class GameSession : IDisposable
         Vector3 lead = new Vector3(Player.Velocity.X, 0, Player.Velocity.Y) * 0.25f;
         Camera.Follow(Player.World, lead, rawDt, _settings.ScreenShake);
         CutAway();
+        foreach (Vector3 fire in Level.FirePoints)
+        {
+            if (_rng.Next(2) == 0)
+            {
+                Fx.Fire(fire, 1.1f);
+            }
+        }
+
         Atmosphere.Update(rawDt, Camera.Position, Player.World, Fx, Audio);
         Fx.Update(dt, Camera.Right, Camera.Up);
         Audio.Update(rawDt, Camera.Position, Camera.Forward);

@@ -18,7 +18,8 @@ public sealed record AtmosphereStyle(
     int Fireflies = 0,
     bool DustGusts = false,
     Vector3? FireflyColor = null,
-    Vector2? Sun = null)
+    Vector2? Sun = null,
+    bool Embers = false)
 {
     public static AtmosphereStyle For(LevelDef level) => level.Id switch
     {
@@ -26,6 +27,13 @@ public sealed record AtmosphereStyle(
         "pasar" => new(TimeOfDay.Sore, 0.7f, 0.006f, 1f, Mist: 0.15f, MistColor: new Vector3(0.95f, 0.75f, 0.6f), Rain: 0.4f),
         "kuburan" => new(TimeOfDay.Malam, 0.8f, 0.007f, 0.9f, Mist: 0.6f, MistColor: new Vector3(0.25f, 0.38f, 0.3f), Rain: 0.7f, Lightning: true, Fireflies: 6,
             FireflyColor: new Vector3(0.5f, 1f, 0.4f)),
+        "jembatan" => new(TimeOfDay.Malam, 0.5f, 0.004f, 0.6f, Mist: 0.9f, MistColor: new Vector3(0.3f, 0.42f, 0.46f), Fireflies: 8),
+        "sekolah" => new(TimeOfDay.Malam, 0.6f, 0.005f, 0.45f, Mist: 0.35f, MistColor: new Vector3(0.3f, 0.32f, 0.42f), Rain: 0.3f),
+        "kuburan_kuno" => new(TimeOfDay.Malam, 0.7f, 0.005f, 0.7f, Mist: 0.7f, MistColor: new Vector3(0.22f, 0.38f, 0.26f), Lightning: true, Fireflies: 6,
+            FireflyColor: new Vector3(0.5f, 1f, 0.4f)),
+        "hutan" => new(TimeOfDay.Malam, 0.3f, 0.003f, 0.5f, Mist: 0.85f, MistColor: new Vector3(0.18f, 0.28f, 0.24f), Fireflies: 16),
+        "masjid_rusak" => new(TimeOfDay.Kutukan, 0.7f, 0.011f, 1f, Mist: 0.3f, MistColor: new Vector3(0.45f, 0.18f, 0.16f), Lightning: true, Embers: true),
+        "candi" => new(TimeOfDay.Kutukan, 0.5f, 0.006f, 0.4f, Mist: 0.45f, MistColor: new Vector3(0.38f, 0.1f, 0.1f), Embers: true),
         _ => new(TimeOfDay.Siang, 0.5f, 0.004f, 0.8f, DustGusts: true),
     };
 
@@ -109,7 +117,7 @@ public sealed class Atmosphere
 
         // the cloud layer turns slowly around the camera: clouds drifting across the sky
         _clouds = Dome("clouds", SkyRadius * 0.96f, 4f, 75f, SkyPainter.Clouds(style.Time, style.CloudCover, 1024, 256), blend: true, 1024, 256);
-        if (style.Time != TimeOfDay.Malam && style.CloudCover > 0.2f)
+        if (style.Time is TimeOfDay.Siang or TimeOfDay.Sore && style.CloudCover > 0.2f)
         {
             CloudShadows(style);
         }
@@ -327,7 +335,12 @@ public sealed class Atmosphere
         }
 
         Shader shader = _scene.CreateShader(RainShader, ShaderLanguage.Glsl, "rain");
-        Vector3 tint = _style.Time == TimeOfDay.Malam ? new Vector3(0.55f, 0.62f, 0.75f) : new Vector3(0.8f, 0.84f, 0.9f);
+        Vector3 tint = _style.Time switch
+        {
+            TimeOfDay.Malam => new Vector3(0.55f, 0.62f, 0.75f),
+            TimeOfDay.Kutukan => new Vector3(0.75f, 0.45f, 0.45f),
+            _ => new Vector3(0.8f, 0.84f, 0.9f),
+        };
         Material m = _scene.CreateMaterial(MaterialOptions.Basic(new Vector4(tint, 0.28f)) with
         {
             AlphaMode = AlphaMode.Blend,
@@ -401,6 +414,13 @@ public sealed class Atmosphere
                 Vector3 p = focus + new Vector3(R(-12, 12), 0.06f, R(-10, 10));
                 fx.Emit(Sprite.Ring, p, Vector3.Zero, 0.25f, 0.02f, 0.2f, flat: true);
             }
+        }
+
+        // embers drifting up from the burning village and the ritual fires
+        if (_style.Embers && _rng.NextDouble() < 12 * dt)
+        {
+            Vector3 p = focus + new Vector3(R(-14, 14), R(0.1f, 1f), R(-12, 12));
+            fx.Emit(Sprite.Flame, p, new Vector3(R(-0.3f, 0.3f), R(0.8f, 1.6f), R(-0.3f, 0.3f)) + (wind3 * 0.6f), R(1.5f, 2.5f), 0.1f, 0.02f);
         }
 
         // dust blown along the road on dry days
@@ -506,6 +526,7 @@ public static class SkyPainter
             // sun positions follow the directional lights in GameSession.Lighting
             TimeOfDay.Sore => (C(0x3B4A8C), C(0xB77AA0), C(0xFFB36B), C(0xE9A27A), C(0xFFD08A), 2.55f, 20f, 0.5f),
             TimeOfDay.Malam => (C(0x05081A), C(0x0E1838), C(0x22305A), C(0x121A30), C(0xB8C8FF), 5.11f, 28f, 0.18f),
+            TimeOfDay.Kutukan => (C(0x1A0508), C(0x4A0E14), C(0x8A2A1A), C(0x2A0A0A), C(0x6AFF8A), 4.71f, 34f, 0.25f),
             _ => (C(0x2F6FD0), C(0x6FA8EC), C(0xCFE6FA), C(0xB9D2E4), C(0xFFF6D8), 0.59f, 57f, 0.3f),
         };
         if (sun is { } custom)
@@ -536,12 +557,25 @@ public static class SkyPainter
 
                 // sun or moon glow and disc
                 float cos = Vector3.Dot(dir, sunDir);
+                if (time == TimeOfDay.Kutukan)
+                {
+                    // a green vortex of curses spinning above the village (art/level 5-10.png)
+                    float dxv = MathF.IEEERemainder(az - sunAz, MathF.Tau) * MathF.Cos(sunEl * MathF.PI / 180f);
+                    float dyv = elev - (sunEl * MathF.PI / 180f);
+                    float rv = MathF.Sqrt((dxv * dxv) + (dyv * dyv));
+                    float swirl = 0.5f + (0.5f * MathF.Sin((MathF.Atan2(dyv, dxv) * 3f) + (rv * 26f)));
+                    float fall = MathF.Exp(-rv / 0.32f);
+                    col = Vector3.Lerp(col, C(0x0A1A10), fall * 0.8f);
+                    col += C(0x3AFF6A) * swirl * fall * 0.9f;
+                    col += C(0xFF3A1A) * (1 - swirl) * fall * 0.25f;
+                }
+
                 float ridge = Ridge(az);
                 float ang = MathF.Acos(Math.Clamp(cos, -1, 1));
-                col += glowCol * (MathF.Exp(-ang * ang / (glowSize * glowSize * 0.5f)) * (time == TimeOfDay.Malam ? 0.35f : 0.55f));
+                col += glowCol * (MathF.Exp(-ang * ang / (glowSize * glowSize * 0.5f)) * (time == TimeOfDay.Malam ? 0.35f : time == TimeOfDay.Kutukan ? 0.2f : 0.55f));
                 col += glowCol * MathF.Exp(-ang * ang / (glowSize * glowSize * 6f)) * 0.25f;
                 float disc = time == TimeOfDay.Malam ? 0.045f : 0.06f;
-                if (ang < disc)
+                if (ang < disc && time != TimeOfDay.Kutukan)
                 {
                     col = Vector3.Lerp(col, time == TimeOfDay.Malam ? new Vector3(0.95f, 0.96f, 0.9f) : new Vector3(1f, 0.98f, 0.9f), Math.Clamp((disc - ang) / 0.01f, 0, 1));
                 }
@@ -550,12 +584,14 @@ public static class SkyPainter
                 Vector3 hill = time switch
                 {
                     TimeOfDay.Malam => C(0x131C30),
+                    TimeOfDay.Kutukan => C(0x2A0E14),
                     TimeOfDay.Sore => C(0x7A5A78),
                     _ => C(0x6E9C86),
                 };
                 Vector3 near = time switch
                 {
                     TimeOfDay.Malam => C(0x0C1222),
+                    TimeOfDay.Kutukan => C(0x16060A),
                     TimeOfDay.Sore => C(0x5C4466),
                     _ => C(0x4F7E5C),
                 };
@@ -613,6 +649,7 @@ public static class SkyPainter
         {
             TimeOfDay.Sore => (C(0xFFD7B0), C(0x8E6A8E)),
             TimeOfDay.Malam => (C(0x5A6690), C(0x1A2038)),
+            TimeOfDay.Kutukan => (C(0x8A2A2A), C(0x2A0A10)),
             _ => (C(0xFFFFFF), C(0xA8B8CC)),
         };
         byte[] px = new byte[w * h * 4];
@@ -626,7 +663,7 @@ public static class SkyPainter
                 float n = Fbm(x / 64f, y / (32f + (v * 24f)), w / 64, 64, 21, 5);
                 float d = Math.Clamp((n - threshold) / 0.22f, 0, 1);
                 float edge = Math.Clamp((1 - v) / 0.05f, 0, 1) * Math.Clamp(v / 0.2f, 0, 1);
-                float alpha = d * edge * (time == TimeOfDay.Malam ? 0.75f : 0.92f);
+                float alpha = d * edge * (time is TimeOfDay.Malam or TimeOfDay.Kutukan ? 0.75f : 0.92f);
                 // denser middles are darker underneath
                 Vector3 col = Vector3.Lerp(lit, shade, Math.Clamp((d - 0.4f) * 1.2f, 0, 1) * 0.7f);
                 int o = ((y * w) + x) * 4;

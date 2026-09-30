@@ -8,11 +8,9 @@ using Bertahan.Game;
 
 namespace Bertahan.UI;
 
-/// <summary>Peta Petualangan: levels 1-4, the next one to play and 5-10 "segera hadir".</summary>
+/// <summary>Peta Petualangan: the ten levels, which are done and which is next.</summary>
 public sealed class LevelMapScreen : Screen
 {
-    private static readonly string[] Upcoming = ["Hutan Bambu", "Pantai Nelayan", "Pabrik Gula", "Stasiun Tua", "Kota Kabupaten", "Puncak Gunung"];
-
     public LevelMapScreen(IShell shell) : base(shell)
     {
         Campaign run = shell.Run!;
@@ -27,33 +25,13 @@ public sealed class LevelMapScreen : Screen
         info.Children.Add(Kit.Chip($"Kesempatan ulang {run.RetriesLeft}/{Campaign.MaxRetries}", Kit.Paper, null, 15));
         col.Children.Add(info);
 
-        UniformGrid levels = new() { Columns = 4, Margin = new Thickness(0, 6) };
+        UniformGrid levels = new() { Columns = 5, Margin = new Thickness(0, 4) };
         foreach (LevelDef l in LevelDef.All)
         {
             levels.Children.Add(LevelCard(l, run));
         }
 
         col.Children.Add(levels);
-        UniformGrid soon = new() { Columns = 6 };
-        for (int n = 5; n <= Campaign.AnnouncedLevels; n++)
-        {
-            StackPanel s = new() { Spacing = 2 };
-            s.Children.Add(Kit.Text($"LEVEL {n}", 14, Kit.MutedBrush, FontWeight.Black));
-            s.Children.Add(Kit.Text(Upcoming[n - 5], 13, Kit.InkBrush, FontWeight.Bold));
-            s.Children.Add(Kit.Chip("SEGERA HADIR", Kit.PaperDark, Kit.MutedBrush, 11));
-            soon.Children.Add(new Border
-            {
-                Margin = new Thickness(5),
-                Padding = new Thickness(10, 8),
-                CornerRadius = new CornerRadius(14),
-                BorderBrush = Kit.MutedBrush,
-                BorderThickness = new Thickness(3),
-                Background = Kit.Brush(0xF3DDB0, 200),
-                Child = s,
-            });
-        }
-
-        col.Children.Add(soon);
         Grid nav = new() { ColumnDefinitions = new ColumnDefinitions("260,16,360"), HorizontalAlignment = HorizontalAlignment.Center };
         nav.Children.Add(new MenuButton("MENU UTAMA", () => Shell.QuitToTitle(), color: Kit.PaperDark));
         MenuButton play = new($"MAIN LEVEL {run.Level}!", () => Shell.PlayLevel(), run.LevelDef.Name, color: Kit.Zombie);
@@ -77,7 +55,7 @@ public sealed class LevelMapScreen : Screen
     {
         bool done = l.Number < run.Level, current = l.Number == run.Level;
         StackPanel s = new() { Spacing = 4 };
-        Grid pic = new() { Height = 130 };
+        Grid pic = new() { Height = 92 };
         pic.Children.Add(new Border
         {
             CornerRadius = new CornerRadius(10),
@@ -101,13 +79,14 @@ public sealed class LevelMapScreen : Screen
 
         s.Children.Add(pic);
         s.Children.Add(Kit.Text($"LEVEL {l.Number}", 13, Kit.OrangeBrush, FontWeight.Black));
-        s.Children.Add(Kit.Text(l.Name, 18, Kit.InkBrush, FontWeight.Black, TextWrapping.NoWrap));
-        s.Children.Add(Kit.Text(l.Zone + (l.Time == TimeOfDay.Malam ? " - Malam" : l.Time == TimeOfDay.Sore ? " - Sore" : " - Siang"), 12, Kit.MutedBrush, FontWeight.Bold));
+        s.Children.Add(Kit.Text(l.Name, 15, Kit.InkBrush, FontWeight.Black, TextWrapping.NoWrap));
+        string time = l.Time switch { TimeOfDay.Malam => "Malam", TimeOfDay.Sore => "Sore", TimeOfDay.Kutukan => "Kutukan", _ => "Siang" };
+        s.Children.Add(Kit.Text($"{l.Zone} - {time}", 11, Kit.MutedBrush, FontWeight.Bold, TextWrapping.NoWrap));
         return new Border
         {
-            Width = 260,
-            Margin = new Thickness(6),
-            Padding = new Thickness(8),
+            Width = 214,
+            Margin = new Thickness(4),
+            Padding = new Thickness(7),
             CornerRadius = new CornerRadius(16),
             Background = current ? Kit.Brush(0xFFF1B8) : Kit.PaperBrush,
             BorderBrush = current ? Kit.OrangeBrush : Kit.InkBrush,
@@ -132,6 +111,11 @@ public sealed class LoadingScreen : Screen
         "Wajan membuat zombi pusing. Bambu runcing menembus barisan.",
         "Senjata baru tergeletak di peta. Tekan angka 1-9 untuk berganti senjata.",
         "Air sawah memperlambat semua orang, kecuali pocong dan kuntilanak.",
+        "Jembatan bambu adalah satu-satunya jalan menyeberangi sungai. Jangan sampai terkepung!",
+        "Siluman Harimau suka menerkam dari jauh. Berguling ke samping saat ia merunduk!",
+        "Lingkaran di tanah berarti hantaman akan datang. Cepat menyingkir!",
+        "Kuntilanak Geni meninggalkan jejak api. Jangan berdiri di atasnya.",
+        "Bos yang berakar di sumur, rawa, atau kolam tidak bisa mengejar. Serang dari tepi!",
         "Tahan SHIFT untuk berlari, tapi awasi tenagamu.",
     ];
 
@@ -374,8 +358,8 @@ public sealed class EndingScreen : Screen
         StackPanel col = Column(10);
         col.Children.Add(Kit.Title("SELAMAT, PAHLAWAN!", 46));
         TextBlock story = Kit.Text(
-            $"{run.PlayerName} dan keluarga berhasil mengalahkan Dukun Zombi di Kuburan Terbengkalai. Kampung Damai kembali tenang... " +
-            "untuk sementara. Kabarnya, wabah zombi sudah menyebar ke kampung-kampung lain!", 18, Kit.InkBrush, FontWeight.Bold);
+            $"{run.PlayerName} dan keluarga menembus Zona Terlarang dan mengalahkan Demon King Abyss di Candi Terlarang. " +
+            "Pusaran kutukan lenyap, para zombi kembali tenang, dan Kampung Damai akhirnya benar-benar damai!", 18, Kit.InkBrush, FontWeight.Bold);
         story.TextAlignment = TextAlignment.Center;
         col.Children.Add(story);
         StackPanel chips = new() { Orientation = Orientation.Horizontal, Spacing = 8, HorizontalAlignment = HorizontalAlignment.Center };
@@ -383,7 +367,7 @@ public sealed class EndingScreen : Screen
         chips.Children.Add(Kit.Chip($"{run.TotalKills} ZOMBI", Kit.Zombie, null, 18));
         chips.Children.Add(Kit.Chip(run.DifficultyDef.Name.ToUpperInvariant(), Kit.Rgb(run.DifficultyDef.Color), null, 18));
         col.Children.Add(chips);
-        OutlinedText soon = Kit.Title("LEVEL 5 - 10 SEGERA HADIR!", 28, Kit.Zombie);
+        OutlinedText soon = Kit.Title("TAMAT - KAMU PAHLAWAN KAMPUNG DAMAI!", 26, Kit.Zombie);
         soon.Margin = new Thickness(0, 8);
         col.Children.Add(soon);
         Grid nav = new() { ColumnDefinitions = new ColumnDefinitions("*,14,*") };

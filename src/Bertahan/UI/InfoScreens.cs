@@ -21,10 +21,10 @@ public sealed class TopScoreScreen : Screen
         StackPanel col = Column(10);
         col.Children.Add(Kit.Title("TOP SKOR", 46));
         UniformGrid tabs = new() { Columns = 10 };
-        for (int n = 1; n <= Campaign.AnnouncedLevels; n++)
+        for (int n = 1; n <= Campaign.PlayableLevels; n++)
         {
             int level = n;
-            MenuButton tab = new(n.ToString(), () => ShowLevel(level), fontSize: 18, color: Kit.PaperDark) { Margin = new Thickness(3), Enabled = n <= Campaign.PlayableLevels };
+            MenuButton tab = new(n.ToString(), () => ShowLevel(level), fontSize: 18, color: Kit.PaperDark) { Margin = new Thickness(3) };
             tab.GotFocus += (_, _) => ShowLevel(level);
             _tabs.Add(tab);
             tabs.Children.Add(tab);
@@ -34,9 +34,6 @@ public sealed class TopScoreScreen : Screen
         _heading = Kit.Title("", 24, Kit.Orange);
         col.Children.Add(_heading);
         col.Children.Add(new ScrollViewer { Content = _table, Height = 380 });
-        TextBlock soon = Kit.Text("Level 5 - 10 segera hadir.", 13, Kit.MutedBrush, FontWeight.Bold);
-        soon.HorizontalAlignment = HorizontalAlignment.Center;
-        col.Children.Add(soon);
         col.Children.Add(new MenuButton("KEMBALI", () => Shell.Back(), color: Kit.PaperDark) { Width = 240, HorizontalAlignment = HorizontalAlignment.Center });
         Border panel = Kit.Panel(col, 24);
         panel.Width = 820;
@@ -53,7 +50,7 @@ public sealed class TopScoreScreen : Screen
         for (int i = 0; i < _tabs.Count; i++)
         {
             _tabs[i].BaseColor = i + 1 == number ? Kit.Sun : Kit.PaperDark;
-            _tabs[i].Enabled = i + 1 <= Campaign.PlayableLevels;
+            _tabs[i].Enabled = true;
         }
 
         _table.Children.Clear();

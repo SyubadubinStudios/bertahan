@@ -20,10 +20,8 @@ public sealed class Campaign
 {
     public const int MaxRetries = 3;
 
-    /// <summary>Levels that are finished; 5-10 are announced as "segera hadir".</summary>
+    /// <summary>Every level of the story (1-10).</summary>
     public static int PlayableLevels => LevelDef.All.Length;
-
-    public const int AnnouncedLevels = 10;
 
     public string PlayerName { get; set; } = "Si Otong";
 

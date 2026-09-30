@@ -14,6 +14,17 @@ public sealed class Combat
         public bool Molotov;
         public float Damage;
         public Node? Node;
+        public Sprite Sprite = Sprite.MagicGreen;
+        public bool Burn;
+    }
+
+    private sealed class PendingSlam
+    {
+        public Vector3 Pos;
+        public float Time;
+        public float Radius;
+        public float Damage;
+        public float Tick;
     }
 
     private sealed class FireZone
@@ -24,11 +35,15 @@ public sealed class Combat
         public Node? Light;
         public SoundInstance? Sound;
         public float Tick;
+
+        /// <summary>Enemy fire: burns the player, not the zombies.</summary>
+        public bool Hostile;
     }
 
     private readonly GameSession _game;
     private readonly List<Projectile> _projectiles = [];
     private readonly List<FireZone> _fires = [];
+    private readonly List<PendingSlam> _slams = [];
     private readonly Node _molotovPrototype;
     private readonly Node _muzzleLight;
     private float _muzzleTime;
@@ -174,10 +189,33 @@ public sealed class Combat
         _game.Audio.Play("sfx_swing", 0.7f, 0.8f);
     }
 
-    public void Fireball(Vector3 from, Vector2 dir, float damage)
+    /// <summary>An enemy projectile: magic, water, bullets or fire (<paramref name="burn"/> leaves a burning patch).</summary>
+    public void Fireball(Vector3 from, Vector2 dir, float damage, Sprite sprite = Sprite.MagicGreen, float speed = 9f, bool burn = false)
     {
-        _projectiles.Add(new Projectile { Pos = from, Vel = new Vector3(dir.X, -0.4f, dir.Y) * 9f, Life = 3.5f, Damage = damage });
-        _game.Audio.PlayAt("sfx_fireball", from, 0.6f, 1f, 0.15);
+        Vector3 vel = new Vector3(dir.X, 0, dir.Y) * speed;
+        vel.Y = -0.4f * 9f * (from.Y > 1.5f ? 1f : 0.3f);
+        _projectiles.Add(new Projectile { Pos = from, Vel = vel, Life = 3.5f, Damage = damage, Sprite = sprite, Burn = burn });
+        _game.Audio.PlayAt("sfx_fireball", from, 0.6f, sprite == Sprite.Spark ? 1.6f : 1f, 0.15);
+    }
+
+    /// <summary>Marks a circle on the ground; after <paramref name="delay"/> seconds a shockwave hits it.</summary>
+    public void Slam(Vector3 at, float delay, float radius, float damage)
+    {
+        _slams.Add(new PendingSlam { Pos = at with { Y = 0f }, Time = delay, Radius = radius, Damage = damage });
+        _game.Fx.Emit(Sprite.Ring, at with { Y = 0.12f }, Vector3.Zero, delay, radius * 2.2f, radius * 2f, flat: true);
+    }
+
+    /// <summary>A patch of enemy fire (kuntilanak geni, demon king) that only hurts the player.</summary>
+    public void HostileFire(Vector3 at, float radius, float time)
+    {
+        FireZone fire = new() { Pos = at with { Y = 0.05f }, Radius = radius, Time = time, Hostile = true };
+        if (_fireLights.Count > 0 && _fires.Count(f => f.Light is not null) < 3)
+        {
+            fire.Light = _fireLights.Pop();
+            fire.Light.Position = at + new Vector3(0, 1f, 0);
+        }
+
+        _fires.Add(fire);
     }
 
     /// <summary>Ground slam: damages the player (and knocks zombies back) inside the radius.</summary>
@@ -221,12 +259,27 @@ public sealed class Combat
         }
         else
         {
-            _game.Fx.Magic(at + new Vector3(0, 0.5f, 0), true, 12);
-            _game.Fx.Emit(Sprite.Ring, at + new Vector3(0, 0.3f, 0), Vector3.Zero, 0.3f, 0.3f, 3f);
-            _game.Audio.PlayAt("sfx_explosion", at, 0.5f, 1.4f, 0.1);
-            if (Vector2.Distance(_game.Player.Position, new Vector2(at.X, at.Z)) < 1.6f)
+            if (p.Sprite == Sprite.Flame)
             {
-                _game.Player.Damage(p.Damage, new Vector2(at.X, at.Z), 6f);
+                _game.Fx.Explosion(at, 1.4f);
+            }
+            else
+            {
+                _game.Fx.Magic(at + new Vector3(0, 0.5f, 0), p.Sprite != Sprite.MagicBlue, 12);
+            }
+
+            _game.Fx.Emit(Sprite.Ring, at + new Vector3(0, 0.3f, 0), Vector3.Zero, 0.3f, 0.3f, 3f);
+            _game.Audio.PlayAt(p.Sprite == Sprite.Spark ? "sfx_hit_blunt" : "sfx_explosion", at, 0.5f, 1.4f, 0.1);
+            // bullets and fireballs hit the player where they burst, not only at the landing spot
+            Vector2 hitAt = new(p.Pos.X, p.Pos.Z);
+            if (Vector2.Distance(_game.Player.Position, hitAt) < 1.6f)
+            {
+                _game.Player.Damage(p.Damage, hitAt, 6f);
+            }
+
+            if (p.Burn)
+            {
+                HostileFire(at, 1.6f, 3f);
             }
         }
 
@@ -240,6 +293,24 @@ public sealed class Combat
         if (_muzzleTime <= 0f && _muzzleLight.Light is { Intensity: > 0f } ml)
         {
             _muzzleLight.Light = ml with { Intensity = 0f };
+        }
+
+        for (int i = _slams.Count - 1; i >= 0; i--)
+        {
+            PendingSlam s = _slams[i];
+            s.Time -= dt;
+            s.Tick -= dt;
+            if (s.Tick <= 0f)
+            {
+                s.Tick = 0.15f;
+                _game.Fx.Dust(s.Pos, 1, 0.4f);
+            }
+
+            if (s.Time <= 0f)
+            {
+                Shockwave(s.Pos, s.Radius, s.Damage, false);
+                _slams.RemoveAt(i);
+            }
         }
 
         for (int i = _projectiles.Count - 1; i >= 0; i--)
@@ -265,7 +336,7 @@ public sealed class Combat
             }
             else
             {
-                _game.Fx.Emit(Sprite.MagicGreen, p.Pos, -p.Vel * 0.05f, 0.35f, 0.55f, 0.1f);
+                _game.Fx.Emit(p.Sprite, p.Pos, -p.Vel * 0.05f, 0.35f, p.Sprite == Sprite.Spark ? 0.25f : 0.55f, 0.1f);
                 if (Vector2.Distance(new Vector2(p.Pos.X, p.Pos.Z), _game.Player.Position) < 0.7f && p.Pos.Y < 2.2f)
                 {
                     hit = true;
@@ -307,17 +378,20 @@ public sealed class Combat
             {
                 f.Tick = 0.33f;
                 Vector2 c = new(f.Pos.X, f.Pos.Z);
-                foreach (Zombie z in _game.Zombies)
+                if (!f.Hostile)
                 {
-                    if (z.Targetable && Vector2.Distance(z.Position, c) < f.Radius)
+                    foreach (Zombie z in _game.Zombies)
                     {
-                        z.Damage(9f * Power(_game.Player), c, 0.5f, 0f, false);
+                        if (z.Targetable && Vector2.Distance(z.Position, c) < f.Radius)
+                        {
+                            z.Damage(9f * Power(_game.Player), c, 0.5f, 0f, false);
+                        }
                     }
                 }
 
                 if (Vector2.Distance(_game.Player.Position, c) < f.Radius * 0.8f)
                 {
-                    _game.Player.Damage(3f, c, 1f);
+                    _game.Player.Damage(f.Hostile ? 6f * _game.DifficultyDamage : 3f, c, 1f);
                 }
             }
 
@@ -343,6 +417,7 @@ public sealed class Combat
         }
 
         _fires.Clear();
+        _slams.Clear();
         foreach (Projectile p in _projectiles)
         {
             p.Node?.Remove();

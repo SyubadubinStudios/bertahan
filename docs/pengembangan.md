@@ -29,6 +29,7 @@ Selain `out.png`, dibuat juga `out.png.txt` berisi ringkasan: gelombang, fase, s
 | `--warp S` | Maju cepat S detik simulasi: waktu desa di menu, atau lama pertarungan di level |
 | `--time S` | Posisi waktu untuk `opening` dan `about` |
 | `--level N` | Level (untuk `level`, `map`, `loading`) |
+| `--wave N` | Langsung ke gelombang N (4 = gelombang bos) untuk menguji pertarungan bos |
 | `--char id`, `--name "..."`, `--difficulty Bayi\|Pemberani\|MimpiBuruk`, `--retries N` | Data petualangan |
 | `--autoplay` | Bot `Autopilot` yang bermain: mendekati zombi, menyerang, melempar molotov, memungut barang |
 | `--overlay pause\|result\|preview` | Buka pause, tampilkan layar hasil (bila level selesai dalam `--warp`), atau ambil gambar sinematik tanpa HUD |
@@ -41,6 +42,8 @@ Contoh:
 Bertahan.exe --shot menu.png --scene title --warp 12
 # bot bermain Level 1 sampai selesai, lalu layar hasil
 Bertahan.exe --shot win.png --scene level --level 1 --warp 480 --autoplay --difficulty Bayi --overlay result --frames 60
+# langsung ke pertarungan bos Level 10
+Bertahan.exe --shot bos.png --scene level --level 10 --wave 4 --warp 12 --autoplay --difficulty Bayi
 # adegan ke-2 cerita pembuka
 Bertahan.exe --shot opening.png --scene opening --time 12
 ```

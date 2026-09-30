@@ -47,6 +47,12 @@ public partial class MainWindow : Window, IShell
     public MainWindow(string[] args)
     {
         _shot = ShotOptions.Parse(args);
+        string icon = Path.Combine(AppContext.BaseDirectory, "icon.png");
+        if (File.Exists(icon))
+        {
+            Icon = new WindowIcon(icon);
+        }
+
         Settings = GameSettings.Load();
         if (_shot is not null)
         {
@@ -628,6 +634,7 @@ public partial class MainWindow : Window, IShell
         public string? Name;
         public int Retries = Campaign.MaxRetries;
         public (Vector3, Vector3)? Cam;
+        public int StartWave = -1;
         public Difficulty Difficulty = Difficulty.Pemberani;
 
         public static ShotOptions? Parse(string[] args)
@@ -654,6 +661,7 @@ public partial class MainWindow : Window, IShell
                     case "--overlay": o.Overlay = v; break;
                     case "--name": o.Name = v; break;
                     case "--retries": o.Retries = int.Parse(v); break;
+                    case "--wave": o.StartWave = int.Parse(v) - 1; break;
                     case "--cam":
                         float[] c = v.Split(',').Select(x => float.Parse(x, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
                         o.Cam = (new Vector3(c[0], c[1], c[2]), new Vector3(c[3], c[4], c[5]));
@@ -750,6 +758,11 @@ public partial class MainWindow : Window, IShell
             if (Scene != "level" || w.Session is not { } s)
             {
                 return;
+            }
+
+            if (StartWave >= 0)
+            {
+                s.Waves.SkipTo(StartWave);
             }
 
             for (float t = 0; t < Warp && !s.Finished; t += 1f / 30f)

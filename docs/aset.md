@@ -4,7 +4,7 @@
 
 **Semua aset game dibuat dengan kode.** Model, rig, dan animasi dibuat dengan skrip Python Blender (dijalankan melalui Blender MCP atau Blender headless). Musik dan efek suara disintesis dengan C#. File di `src/Bertahan/Assets/` adalah **hasil generate**: ubah skripnya, lalu generate ulang.
 
-Gambar konsep di [`art/`](../art) (gameplay, level 1-4, karakter pemain, musuh, dan bos) adalah referensi visual untuk aset-aset ini.
+Gambar konsep di [`art/`](../art) (gameplay, level 1-10, karakter pemain, musuh, musuh tambahan, dan bos level 5-10) adalah referensi visual untuk aset-aset ini.
 
 ## Model 3D (Blender)
 
@@ -15,8 +15,11 @@ Gambar konsep di [`art/`](../art) (gameplay, level 1-4, karakter pemain, musuh, 
 | `blender/villagers.py` | Warga NPC: petani (caping), pedagang (bakul sayur), pak ustad (peci, sarung), bocah, hansip (seragam hijau, topi, ban lengan, peluit), tukang bakso (topi koki, celemek), mbok jamu (kebaya, jarik, bakul botol jamu), tukang ojek (jaket dan helm hijau), bu guru (batik, kacamata, buku) |
 | `blender/animals.py` | Hewan: ayam, sapi, kambing, kucing, anjing (rig kaki empat umum), ular (rig rantai 9 segmen), burung (rig sayap). Klip: `idle`, `walk`, `run` (burung: terbang, ular: melata cepat), `die`, `attack` (mematuk, merumput, menggonggong, mematuk ular) |
 | `blender/zombies.py` | Warga, Tuyul, Pocong, Satpam, Kuntilanak, Genderuwo, Dukun |
+| `blender/zombies_tambahan.py` | Musuh tambahan dari `art/enemies-additional.png`: Tuyul Serdadu (helm tentara, loreng, senapan), Siluman Harimau (kepala, ekor, cakar, tekstur loreng), Pocong Penjaga (rantai), Kuntilanak Geni (rambut api), Genderuwo Raksasa (berlumut), Dukun Santet (mahkota tulang, kalung tengkorak, tongkat kristal) |
+| `blender/bosses.py` | Bos level 5-10 dari `art/boss-level-N.png`. Rig khusus: Jeng Roro (sumur, 4 lengan, tulang rambut), Kuntilanak Penguasa (5 kepala bermahkota), Kraken Raja (8 tentakel 3 ruas), Leviathan Kuno (3 leher melengkung, ekor). Rig humanoid: Genderuwo Raja dan Demon King (tulang tambahan sayap dan ekor lewat `btk.add_bones`) |
 | `blender/weapons.py` | 9 senjata dan barang pungutan |
 | `blender/props.py` | Rumah, ruko, kios, masjid, gapura, pohon, sawah, nisan, dan lainnya (51 prop) |
+| `blender/props_lanjut.py` | 28 prop level 5-10: jembatan bambu, perahu, ruang kelas, meja, papan tulis, nisan kuno, cungkup, arca, pohon larangan, jamur menyala, masjid rusak, puing, rumah terbakar, dinding/pilar/gapura candi, altar ritual, obor, tengkorak |
 | `blender/anims.py`, `blender/zanims.py` | Klip animasi keluarga/warga dan zombi |
 | `blender/ui_renders.py` | Render potret, ikon zombi dan senjata, serta logo ke `Assets/UI` |
 | `blender/build_all.py` | Generate ulang semua model |
@@ -64,13 +67,14 @@ Konvensi Blender: sumbu Z ke atas, karakter menghadap -Y, sisi kiri karakter +X 
 ## Gambar UI
 
 - `Assets/UI/portrait_*`, `card_*`, `zombie_*`, `weapon_*`, dan `logo` dirender dari Blender (`ui_renders.py`).
-- `Assets/UI/scene_level_N.png` adalah **render dari mesin game** untuk layar loading dan peta. Buat ulang dengan mode screenshot:
+- `Assets/UI/scene_level_N.png` untuk level 1-4 adalah **render dari mesin game** untuk layar loading dan peta; level 5-10 dipotong dari panel `art/level 5-10.png` dan diperbesar ke 1408x770. Buat ulang dengan mode screenshot:
 
 ```bash
 Bertahan.exe --shot level1.png --scene level --level 1 --warp 44 --autoplay --overlay preview
 ```
 
 Lalu kecilkan ke 1408x770 dan simpan sebagai `scene_level_1.png`.
+- Ikon musuh tambahan dan bos (`zombie_<id>.png`) dirender dengan `ui_renders.extra_zombie_icons()`, yang membingkai kamera dari batas model.
 - `Assets/UI/level_N.png` dan `loading.png` adalah seni konsep (tidak dipakai lagi oleh loading/peta, kecuali `loading.png` sebagai layar boot).
 
 ## Audio prosedural

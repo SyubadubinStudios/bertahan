@@ -85,7 +85,7 @@ public static class Kit
         Stretch = Stretch.Uniform,
     };
 
-    /// <summary>A small rounded tag, e.g. "SEGERA HADIR".</summary>
+    /// <summary>A small rounded tag, e.g. "DI SINI".</summary>
     public static Border Chip(string text, Color background, IBrush? foreground = null, double size = 13) => new()
     {
         Background = new SolidColorBrush(background),

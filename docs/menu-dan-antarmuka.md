@@ -97,13 +97,13 @@ Tekan Esc atau P. Pilihannya: Lanjutkan, Ulangi Level, Pilihan, Kontrol, dan Kel
 
 ## Peta Petualangan
 
-Muncul setelah menang dan saat memilih **LANJUTKAN**. Menampilkan info petualangan (nama, karakter, kesulitan, skor, dan kesempatan ulang), kartu level 1-4 (selesai, di sini, atau belum), dan level 5-10 berlabel **SEGERA HADIR**.
+Muncul setelah menang dan saat memilih **LANJUTKAN**. Menampilkan info petualangan (nama, karakter, kesulitan, skor, dan kesempatan ulang), dan kartu 10 level bergambar (selesai, di sini, atau belum).
 
 ![Peta](images/peta.jpg)
 
 ## Tamat
 
-Setelah Dukun Zombi di Level 4 dikalahkan, muncul ucapan selamat, total skor, dan jumlah zombi yang dikalahkan, beserta pengumuman **Level 5-10 segera hadir**. Dari sini pemain bisa langsung menonton kredit.
+Setelah Demon King Abyss di Level 10 dikalahkan, muncul ucapan selamat, total skor, dan jumlah zombi yang dikalahkan, beserta tulisan **TAMAT - KAMU PAHLAWAN KAMPUNG DAMAI!**. Dari sini pemain bisa langsung menonton kredit.
 
 ![Tamat](images/tamat.jpg)
 

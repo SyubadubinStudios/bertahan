@@ -146,7 +146,7 @@ def specs():
                              top=0xF3F1EA, top_sleeve="long", bottom=0xF3F1EA, bottom_style="skirt", shoes=0xD6E2D0,
                              face="zombie", eye_glow=0xFF2A2A, brows=0x101010, ears=0.0, weapons=False,
                              hooks=(long_hair_hook,)),
-        "genderuwo": C.Spec(height=2.4, head=0.56, shoulder=0.52, hip_w=0.16, leg=0.8, arm=1.02, girth=1.9, depth=1.1,
+        "genderuwo": C.Spec(height=2.4, head=0.56, shoulder=0.46, hip_w=0.17, leg=0.8, arm=1.02, girth=1.25, depth=1.1, limb=2.6,
                             skin=0x6B4A33, hair_style="none", top="fur", top_sleeve="none", bottom="fur", bottom_style="pants",
                             shoes=0x4A3222, face="zombie", eye_glow=0xFF2020, brows=0x2A1A10, ears=1.2, weapons=False,
                             hooks=(horns_hook,)),
