@@ -627,6 +627,7 @@ public partial class MainWindow : Window, IShell
         public string Overlay = "";
         public string? Name;
         public int Retries = Campaign.MaxRetries;
+        public (Vector3, Vector3)? Cam;
         public Difficulty Difficulty = Difficulty.Pemberani;
 
         public static ShotOptions? Parse(string[] args)
@@ -653,6 +654,10 @@ public partial class MainWindow : Window, IShell
                     case "--overlay": o.Overlay = v; break;
                     case "--name": o.Name = v; break;
                     case "--retries": o.Retries = int.Parse(v); break;
+                    case "--cam":
+                        float[] c = v.Split(',').Select(x => float.Parse(x, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+                        o.Cam = (new Vector3(c[0], c[1], c[2]), new Vector3(c[3], c[4], c[5]));
+                        break;
                     case "--difficulty": o.Difficulty = Enum.Parse<Difficulty>(v, true); break;
                 }
             }
@@ -692,6 +697,7 @@ public partial class MainWindow : Window, IShell
             }
 
             w.EnterMenu();
+            w.Menu!.FixedCamera = Cam;
             for (float t = 0; t < Warp; t += 1f / 30f)
             {
                 w.Menu!.Update(1f / 30f);
@@ -719,6 +725,10 @@ public partial class MainWindow : Window, IShell
                         about.Tick(1f / 30f);
                     }
 
+                    break;
+                case "village":
+                    // just the 3D backdrop, no menu
+                    w.ClearScreens();
                     break;
                 case "ending":
                     run.TotalScore = 17650;

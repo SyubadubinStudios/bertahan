@@ -103,6 +103,9 @@ public sealed class MenuStage : IDisposable
     /// <summary>Shift of the framing to the right, so the menu panel on the left does not cover the action.</summary>
     public float PanelOffset { get; set; } = 1f;
 
+    /// <summary>Pins the camera (screenshots for the docs); null follows the menu.</summary>
+    public (Vector3 Position, Vector3 Target)? FixedCamera { get; set; }
+
     private static Vector3 Home(int i) => new((i - 2.5f) * 1.25f, 0, 1.2f - (MathF.Abs(i - 2.5f) * 0.25f));
 
     /// <summary>-1 shows everybody, otherwise that family member steps forward and cheers.</summary>
@@ -144,8 +147,8 @@ public sealed class MenuStage : IDisposable
             if (_selected >= 0)
             {
                 Vector3 home = Home(_selected) + new Vector3(0, 0, 1.4f);
-                desiredPos = home + new Vector3(1.6f, 1.6f, 4.2f);
-                desiredTarget = home + new Vector3(-0.9f * PanelOffset, 0.9f, 0);
+                desiredPos = home + new Vector3(2f, 1.85f, 5.6f);
+                desiredTarget = home + new Vector3(-1.1f * PanelOffset, 1.15f, 0);
             }
             else
             {
@@ -168,6 +171,13 @@ public sealed class MenuStage : IDisposable
             Vector3 side = Vector3.Normalize(Vector3.Cross(target - pos, Vector3.UnitY));
             desiredPos = pos + (side * (_tourTime - 5.5f) * 0.35f);
             desiredTarget = target - (side * 2.5f * PanelOffset);
+        }
+
+        if (FixedCamera is { } fixedCam)
+        {
+            (desiredPos, desiredTarget) = fixedCam;
+            _camPos = desiredPos;
+            _camTarget = desiredTarget;
         }
 
         float follow = View == MenuView.Village ? 0.6f : 3f;

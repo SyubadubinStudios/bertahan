@@ -74,7 +74,8 @@ def portraits():
         spec.weapons = False
         arm, mesh = C.build_human(name, spec)
         head = Vector((0, 0, spec.height - spec.head * 0.62))
-        _camera(head, (0.4, -1.95, 0.18), lens=60)
+        k = spec.head / 0.5
+        _camera(head, (0.4 * k, -1.95 * k, 0.18 * k), lens=60)
         _lights()
         path = os.path.join(UI, f"portrait_{name}.png")
         _render(path)

@@ -12,6 +12,10 @@
 
 - **Cerita pembuka sinematik** yang dirender langsung di mesin game. Kampung Damai yang tenang, ritual dukun di kuburan tua, zombi bangkit dari tanah, warga berlarian, lalu satu keluarga yang memilih bertahan.
 - **Menu dengan latar 3D yang hidup.** Warga menyapu, mencangkul sawah, mengobrol di pos ronda, dan anak-anak bermain. Sesekali zombi lewat dan membuat warga lari tunggang langgang.
+- **Kampung yang ramai dengan warga dan hewan:**
+  - Warga dengan berbagai profesi: petani, pedagang, pak ustad, hansip, tukang bakso dengan gerobaknya, mbok jamu gendong, tukang ojek, bu guru, dan bocah-bocah.
+  - Hewan ternak dan hewan liar: ayam, sapi, kambing, kucing, anjing, ular, dan burung. Semuanya punya model, rig, dan animasi dari Blender, juga suaranya masing-masing.
+  - Mereka mematuk, merumput, mengeong, dan menggonggong. Saat zombi mendekat, semuanya kabur dan burung beterbangan. Semua ini ada di menu, cerita pembuka, dan setiap level.
 - **Alur New Game:** Input Nama (bawaan *Si Otong*), lalu Tingkat Kesulitan (**Bayi**, **Pemberani**, **Mimpi Buruk**), lalu Pilih Karakter, lalu Mulai.
 - **4 level** dengan suasana berbeda: Gerbang Kampung (siang), Sawah Berhantu (malam), Pasar Lama (sore, gerimis), dan Kuburan Terbengkalai (malam, hujan dan petir). **Level 5 sampai 10 segera hadir.**
 - **Nyawa dan kesempatan ulang.** Setiap level diberi beberapa nyawa. Jika nyawa habis, level diulang, maksimal 3 kali. Jika kesempatan juga habis, petualangan dimulai lagi dari Level 1.
@@ -31,6 +35,7 @@
 |---|---|
 | ![Level 1](docs/images/level-1.jpg) | ![Level 2](docs/images/level-2.jpg) |
 | ![Level 3](docs/images/level-3.jpg) | ![Level 4](docs/images/level-4.jpg) |
+| ![Kehidupan desa](docs/images/desa-hidup-1.jpg) | ![Warga dan ternak](docs/images/desa-hidup-4.jpg) |
 
 ## Menjalankan game
 

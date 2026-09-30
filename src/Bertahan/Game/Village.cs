@@ -32,6 +32,9 @@ public sealed class Villager
     public Vector2 FleeFrom;
     public bool Returning;
     public float Pitch = 1f;
+
+    /// <summary>A pushcart (tukang bakso) rolled along in front of the villager.</summary>
+    public Node? Cart;
 }
 
 /// <summary>A zombie wandering through the village along a path.</summary>
@@ -230,7 +233,7 @@ public sealed class VillageLife
             Face = face,
             Route = route ?? [],
             Phase = (float)_rng.NextDouble() * 5f,
-            Pitch = model.Contains("bocah") ? 1.35f : model.Contains("pedagang") ? 1.1f : 0.9f,
+            Pitch = model.Contains("bocah") ? 1.35f : model.Contains("pedagang") || model.Contains("jamu") || model.Contains("guru") ? 1.1f : 0.9f,
         };
         Villagers.Add(v);
         return v;
@@ -251,7 +254,35 @@ public sealed class VillageLife
         {
             AddVillager("npc_bocah", Chore.Play, new Vector2(6, 16), i == 0 ? "bambu" : null).Phase = i * MathF.Tau / 3f;
         }
+
+        // the rest of the village at work
+        AddVillager("npc_hansip", Chore.Stroll, new Vector2(-9, 13), "pentungan", 0f,
+            [new Vector2(-9, 11), new Vector2(-9, 3), new Vector2(-2, 4), new Vector2(3, 9), new Vector2(-4, 9.5f)]);
+        Villager bakso = AddVillager("npc_bakso", Chore.Stroll, new Vector2(10, 8), null, 0f,
+            [new Vector2(24, 7.8f), new Vector2(-18, 8.6f)]);
+        bakso.Cart = _props.Place("prop_gerobak", _root, new Vector3(bakso.Position.X, 0, bakso.Position.Y));
+        AddVillager("npc_jamu", Chore.Stroll, new Vector2(0, 18), null, 0f,
+            [new Vector2(-1, 26), new Vector2(0.5f, 12), new Vector2(8, 7.8f), new Vector2(0.5f, 12)]);
+        AddVillager("npc_ojek", Chore.Chat, new Vector2(-6.6f, 3.1f), null, 2.4f);
+        AddVillager("npc_guru", Chore.Chat, new Vector2(8.9f, 15.2f), null, -1.9f);
+
+        // livestock and wild animals
+        _fauna = new Fauna(_scene, _root, _audio, _fx, 17) { Chatter = 0.8f };
+        _fauna.Add("ayam", new Vector2(4.5f, -1.5f), 2.5f, 4);
+        _fauna.Add("ayam", new Vector2(-15.5f, 1.5f), 2f, 3);
+        _fauna.Add("kambing", new Vector2(13.5f, -6), 2.2f, 2);
+        _fauna.Add("sapi", new Vector2(24, 11), 3f, 2);
+        _fauna.Add("kucing", new Vector2(-2.5f, -6.2f), 1.5f, 1);
+        _fauna.Add("kucing", new Vector2(-11, -6.5f), 2f, 1);
+        _fauna.Add("anjing", new Vector2(-8, 9), 3f, 1);
+        _fauna.Add("burung", new Vector2(17, 12), 4f, 5);
+        _fauna.Add("burung", new Vector2(-5, 17), 3f, 4);
+        _fauna.Add("ular", new Vector2(12, -5.5f), 2.5f, 1);
     }
+
+    private Fauna? _fauna;
+
+    private readonly List<Vector2> _threats = [];
 
     private void BuildIntruders()
     {
@@ -334,6 +365,17 @@ public sealed class VillageLife
         {
             UpdateVillager(v, dt);
         }
+
+        _threats.Clear();
+        foreach (Intruder z in Intruders)
+        {
+            if (z.Active)
+            {
+                _threats.Add(z.Position);
+            }
+        }
+
+        _fauna?.Update(dt, _threats);
     }
 
     private void UpdateIntruder(Intruder z, float dt)
@@ -424,7 +466,7 @@ public sealed class VillageLife
             {
                 v.Fleeing = true;
                 v.Model.CancelAction();
-                _audio.PlayAt("sfx_hurt_high", new Vector3(v.Position.X, 1.5f, v.Position.Y), 0.55f, v.Pitch * 1.25f, 0.8);
+                _audio.PlayAt(v.Pitch > 1f ? "sfx_teriak_wanita" : "sfx_teriak_pria", new Vector3(v.Position.X, 1.5f, v.Position.Y), 0.55f, v.Pitch, 0.8);
                 _fx.Emit(Sprite.Spark, new Vector3(v.Position.X, 2.3f, v.Position.Y), new Vector3(0, 1.5f, 0), 0.5f, 0.35f, 0.1f);
             }
 
@@ -555,6 +597,13 @@ public sealed class VillageLife
     {
         v.Model.Root.Position = new Vector3(v.Position.X, 0, v.Position.Y);
         v.Model.Root.EulerAngles = new Vector3(0, v.Yaw, 0);
+        if (v.Cart is not null)
+        {
+            Vector2 ahead = v.Position + (new Vector2(MathF.Sin(v.Yaw), MathF.Cos(v.Yaw)) * 1.3f);
+            v.Cart.Position = new Vector3(ahead.X, 0, ahead.Y);
+            v.Cart.EulerAngles = new Vector3(0, v.Yaw + (MathF.PI / 2), 0);
+        }
+
         v.Model.Update(dt);
     }
 }

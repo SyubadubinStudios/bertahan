@@ -64,6 +64,8 @@ public sealed class GameSession : IDisposable
 
         Pickups.Spawn(PickupKind.Molotov, Level.PickupPoints[0]);
         Waves = new WaveDirector(this);
+        Fauna = new Fauna(Scene, actors, audio, Fx, level.Number * 31, (p, r) => Level.Nav.Resolve(p, r), 36f);
+        PopulateFauna(level);
 
         DifficultySpeed = (1f + ((level.Number - 1) * 0.06f)) * difficulty.EnemySpeed;
         DifficultyDamage = (1f + ((level.Number - 1) * 0.12f)) * difficulty.EnemyDamage;
@@ -87,6 +89,9 @@ public sealed class GameSession : IDisposable
     public Particles Fx { get; }
 
     public Atmosphere Atmosphere { get; }
+
+    /// <summary>Animals and villagers roaming the level; they flee from zombies.</summary>
+    public Fauna Fauna { get; }
 
     public Combat Combat { get; }
 
@@ -175,6 +180,35 @@ public sealed class GameSession : IDisposable
             FogStart = 1000f,
             FogEnd = 5000f,
         };
+    }
+
+    private readonly List<Vector2> _threats = [];
+
+    /// <summary>Who lives where in each level: livestock by the houses, birds in the open, snakes in the grass.</summary>
+    private void PopulateFauna(LevelDef level)
+    {
+        (string Id, int Count, float Radius)[] groups = level.Id switch
+        {
+            "sawah" => [("burung", 4, 4f), ("burung", 3, 3f), ("ular", 2, 5f), ("ular", 1, 4f), ("kambing", 2, 3f), ("ayam", 3, 3f), ("kucing", 1, 3f),
+                ("petani", 1, 5f), ("petani", 1, 5f), ("ustad", 1, 4f)],
+            "pasar" => [("ayam", 4, 3f), ("ayam", 3, 2.5f), ("kucing", 1, 3f), ("kucing", 1, 3f), ("anjing", 1, 4f), ("burung", 5, 4f),
+                ("pedagang", 1, 3f), ("jamu", 1, 4f), ("bakso", 1, 4f), ("ojek", 1, 3f), ("guru", 1, 3f)],
+            "kuburan" => [("ular", 2, 5f), ("ular", 1, 4f), ("kucing", 1, 4f), ("burung", 4, 5f), ("anjing", 1, 4f), ("hansip", 1, 5f)],
+            _ => [("ayam", 4, 3f), ("ayam", 3, 3f), ("kambing", 2, 3f), ("sapi", 1, 3f), ("kucing", 1, 3f), ("anjing", 1, 4f), ("burung", 5, 4f),
+                ("burung", 3, 3f), ("petani", 1, 5f), ("pedagang", 1, 4f), ("hansip", 1, 5f), ("bocah", 2, 4f)],
+        };
+        Random rng = new(level.Number * 13);
+        foreach ((string id, int count, float radius) in groups)
+        {
+            // keep the player's start spot clear
+            Vector2 home = Level.PlayerStart;
+            for (int tries = 0; tries < 12 && Vector2.Distance(home, Level.PlayerStart) < 8f; tries++)
+            {
+                home = Level.Nav.RandomFreePoint(rng, new Vector2(-30), new Vector2(30));
+            }
+
+            Fauna.Add(id, home, radius, count);
+        }
     }
 
     private void BuildPools(LevelDef level, Node parent)
@@ -454,6 +488,16 @@ public sealed class GameSession : IDisposable
 
         Combat.Update(dt);
         Pickups.Update(dt);
+        _threats.Clear();
+        foreach (Zombie z in _zombies)
+        {
+            if (z.Active && z.State != ZombieState.Dying)
+            {
+                _threats.Add(z.Position);
+            }
+        }
+
+        Fauna.Update(dt, _threats);
         if (State == SessionState.Playing)
         {
             Waves.Update(dt);

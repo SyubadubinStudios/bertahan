@@ -85,6 +85,23 @@ Setiap kali gelombang selesai, perbekalan baru muncul di peta. Zombi yang kalah 
 
 Zombi makin kuat di level yang lebih tinggi: darah +10%, kecepatan +6%, dan damage +12% per level.
 
+## Warga dan hewan
+
+![Warga dan ternak di kampung](images/desa-hidup-4.jpg)
+
+Kampung tidak hanya dihuni pahlawan dan zombi. Di setiap level ada warga dan hewan yang menjalani hari mereka:
+
+| Level | Penghuni |
+|---|---|
+| Gerbang Kampung | Ayam, kambing, sapi, kucing, anjing, burung; petani, pedagang, hansip, bocah |
+| Sawah Berhantu | Burung, ular, kambing, ayam, kucing; petani, pak ustad |
+| Pasar Lama | Ayam, kucing, anjing, burung; pedagang, mbok jamu, tukang bakso, tukang ojek, bu guru |
+| Kuburan Terbengkalai | Ular, kucing, burung, anjing; hansip |
+
+- Mereka berkeliaran di sekitar rumahnya: ayam dan burung mematuk, sapi dan kambing merumput, kucing mengeong, anjing menggonggong.
+- Begitu zombi mendekat, mereka **lari menjauh**. Burung **terbang** lalu hinggap lagi setelah aman. Anjing sempat menggonggong ke arah zombi sebelum kabur, dan warga berteriak sambil berlari.
+- Zombi tidak menyerang mereka. Kamu tetap satu-satunya sasaran!
+
 ## Level
 
 ![Peta petualangan](images/peta.jpg)

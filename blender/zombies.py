@@ -130,26 +130,27 @@ def dukun_hook(name, s, j, hc, hr):
 # ---------------------------------------------------------------- specs
 
 def specs():
+    # proportions follow art/enemies.png: adult zombies are no longer chibi, tuyul keeps the big imp head
     return {
-        "warga": C.Spec(height=1.62, head=0.52, shoulder=0.24, leg=0.58, arm=0.56, skin=0x8FC46E, hair=0x3A2A1A, hair_style="short",
+        "warga": C.Spec(height=1.66, head=0.42, shoulder=0.23, leg=0.7, arm=0.64, skin=0x8FC46E, hair=0x3A2A1A, hair_style="short",
                         top="torn_shirt", top_sleeve="short", bottom=0x4A5A7A, bottom_style="shorts", shoes=0x8FC46E, face="zombie",
                         eye_glow=0xFFE14A, brows=0x2A3A1A, weapons=False),
         "tuyul": C.Spec(height=0.95, head=0.56, shoulder=0.15, hip_w=0.07, leg=0.28, arm=0.32, girth=0.8, skin=0x7DBB5E,
                         hair_style="none", top=0x7DBB5E, top_sleeve="none", bottom=0xEDE8D8, bottom_style="shorts", shoes=0x7DBB5E,
                         face="zombie", eye_glow=0xFF3B3B, brows=0x2E4A20, ears=1.8, weapons=False),
-        "satpam": C.Spec(height=1.86, head=0.5, shoulder=0.3, hip_w=0.12, leg=0.66, arm=0.62, girth=1.3, skin=0x9DB77E,
+        "satpam": C.Spec(height=1.88, head=0.42, shoulder=0.3, hip_w=0.12, leg=0.8, arm=0.74, girth=1.3, skin=0x9DB77E,
                          hair_style="none", top="torn_khaki", top_sleeve="short", bottom=0x23232A, shoes=0x151515,
                          extras=("badge", "belt"), face="zombie", eye_glow=0xFF6A2A, brows=0x1E2A14, weapons=False,
                          hooks=(cap_hook(0x2A3550), baton_hook)),
-        "kuntilanak": C.Spec(height=1.72, head=0.5, shoulder=0.21, leg=0.62, arm=0.62, girth=0.9, skin=0xD6E2D0, hair_style="none",
+        "kuntilanak": C.Spec(height=1.74, head=0.41, shoulder=0.2, leg=0.76, arm=0.72, girth=0.9, skin=0xD6E2D0, hair_style="none",
                              top=0xF3F1EA, top_sleeve="long", bottom=0xF3F1EA, bottom_style="skirt", shoes=0xD6E2D0,
                              face="zombie", eye_glow=0xFF2A2A, brows=0x101010, ears=0.0, weapons=False,
                              hooks=(long_hair_hook,)),
-        "genderuwo": C.Spec(height=2.35, head=0.64, shoulder=0.52, hip_w=0.16, leg=0.72, arm=0.95, girth=1.2, depth=1.1,
+        "genderuwo": C.Spec(height=2.4, head=0.56, shoulder=0.52, hip_w=0.16, leg=0.8, arm=1.02, girth=1.9, depth=1.1,
                             skin=0x6B4A33, hair_style="none", top="fur", top_sleeve="none", bottom="fur", bottom_style="pants",
                             shoes=0x4A3222, face="zombie", eye_glow=0xFF2020, brows=0x2A1A10, ears=1.2, weapons=False,
                             hooks=(horns_hook,)),
-        "dukun": C.Spec(height=1.74, head=0.5, shoulder=0.23, leg=0.6, arm=0.56, girth=1.05, skin=0x94A07E, hair_style="none",
+        "dukun": C.Spec(height=1.76, head=0.41, shoulder=0.22, leg=0.74, arm=0.66, girth=1.05, skin=0x94A07E, hair_style="none",
                         top="robe", top_sleeve="long", bottom="robe", bottom_style="skirt", shoes=0x3A2A1E, face="zombie",
                         eye_glow=0x7CFF4A, brows=0xD0D0C8, weapons=False, hooks=(dukun_hook,)),
     }

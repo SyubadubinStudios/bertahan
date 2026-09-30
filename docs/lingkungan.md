@@ -54,6 +54,26 @@ Semua tanaman bergoyang: rumput, padi, semak, rumpun bambu, pohon pisang, kelapa
 - Rumput dan padi paling lentur, sedangkan pohon besar hanya bergoyang sedikit dan pelan.
 - Satu level berisi sekitar 300 tanaman bergoyang.
 
-## Kehidupan desa (menu dan cerita)
+## Kehidupan desa
 
-Kelas `VillageLife` (`Game/Village.cs`) menghidupkan desa dengan warga NPC (Pak Tani, Bu Pedagang, Pak Ustad, dan bocah-bocah) yang punya tugas: menyapu, mencangkul, mengobrol, berjalan-jalan, dan bermain. Zombi pengganggu berjalan mengikuti rute di jalan desa dan kadang menerjang warga. Warga dalam radius 6,5 m menjerit lalu kabur, dan kembali bekerja setelah aman.
+| | |
+|---|---|
+| ![](images/desa-hidup-1.jpg) Kake, Nene, dan ayam-ayam di halaman rumah | ![](images/desa-hidup-2.jpg) Tukang bakso mendorong gerobak, sapi dan burung di sawah |
+| ![](images/desa-hidup-3.jpg) Pak tani mencangkul di sawah | ![](images/desa-hidup-4.jpg) Pedagang menyapu warung, ayam berkeliaran |
+
+**Warga (menu dan cerita)** diatur oleh kelas `VillageLife` (`Game/Village.cs`). Setiap warga punya tugas:
+- Bu pedagang menyapu.
+- Pak tani mencangkul.
+- Pak ustad dan tetangga mengobrol di pos ronda, sementara tukang ojek mengobrol di dekat motornya.
+- Bu guru mengawasi anak-anak bermain.
+- Hansip berpatroli membawa pentungan.
+- Tukang bakso mendorong gerobak di jalan desa.
+- Mbok jamu berkeliling menjajakan jamu.
+
+Zombi pengganggu berjalan mengikuti rute di jalan desa dan kadang menerjang warga. Warga dalam radius 6,5 m berteriak lalu kabur, dan kembali bekerja setelah aman.
+
+**Hewan dan warga di level** diatur oleh kelas `Fauna` (`Game/Fauna.cs`), yang juga menghidupkan hewan di menu. Ada tujuh jenis hewan: ayam, sapi, kambing, kucing, anjing, ular, dan burung. Warga di level memakai sistem yang sama. Setiap makhluk:
+- berkeliaran di sekitar "rumah"-nya dan kadang melakukan aksi khas (mematuk, merumput, menggonggong, mengeong);
+- bersuara dari waktu ke waktu (ayam juga berkokok), dengan suara 3D posisional;
+- kabur begitu zombi masuk radius waspadanya. Burung terbang lalu hinggap lagi, anjing menggonggong dulu, ular mendesis, dan warga berteriak;
+- saling menjaga jarak agar kawanan tidak bertumpuk, serta menghindari bangunan lewat navigasi level.

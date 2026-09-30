@@ -18,17 +18,20 @@ import zanims  # noqa: E402
 import zombies  # noqa: E402
 import props  # noqa: E402
 import villagers  # noqa: E402
+import animals  # noqa: E402
 
-for module in (btk, weapons, anims, characters, zanims, zombies, props, villagers):
+for module in (btk, weapons, anims, characters, zanims, zombies, props, villagers, animals):
     importlib.reload(module)
 
 
-def main(groups=("characters", "villagers", "zombies", "weapons", "props")):
+def main(groups=("characters", "villagers", "animals", "zombies", "weapons", "props")):
     report = {}
     if "characters" in groups:
         report["characters"] = {k: len(v["clips"]) for k, v in characters.build_all().items()}
     if "villagers" in groups:
         report["villagers"] = {k: len(v["clips"]) for k, v in villagers.build_all().items()}
+    if "animals" in groups:
+        report["animals"] = {k: len(v["clips"]) for k, v in animals.build_all().items()}
     if "zombies" in groups:
         report["zombies"] = {k: len(v["clips"]) for k, v in zombies.build_all().items()}
     if "weapons" in groups:

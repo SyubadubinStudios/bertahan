@@ -25,6 +25,8 @@ flowchart TB
     Session --> Pickups
     Session --> Fx["Particles"]
     Session --> Atmo["Atmosphere"]
+    Session --> Fauna["Fauna<br/>(hewan + warga)"]
+    Village --> Fauna
     Menu --> Atmo
     Opening --> Atmo
     Window --> Settings["GameSettings (JSON)"]
@@ -52,7 +54,8 @@ flowchart TB
 | `Game/Navigation.cs` | Tabrakan 2D (kotak dan lingkaran) serta flow field menuju pemain |
 | `Game/Models.cs` | `PropLibrary` (prototipe GLB + clone) dan `AnimatedModel` (blending klip dengan bobot) |
 | `Game/Atmosphere.cs` | Langit, awan, kabut, hujan, petir, kunang-kunang, angin |
-| `Game/Village.cs` | `VillageLife`: desa hidup untuk menu dan cerita |
+| `Game/Village.cs` | `VillageLife`: desa hidup untuk menu dan cerita (warga dengan tugas, zombi pengganggu, hewan) |
+| `Game/Fauna.cs` | `CritterDef` dan `Fauna`: hewan dan warga yang berkeliaran, beraksi, bersuara, dan kabur dari zombi (dipakai di menu dan setiap level) |
 | `Game/MenuStage.cs`, `OpeningStage.cs` | Latar menu dan cerita pembuka |
 | `Game/Autopilot.cs` | Bot pemain untuk screenshot dan uji otomatis |
 | `UI/*` | Tema (`Kit`), tombol (`MenuButton`), teks bergaris (`OutlinedText`), semua `Screen`, dan `Hud` |
@@ -90,6 +93,7 @@ stateDiagram-v2
    - nyawa dan bangkit lagi;
    - flow field (tiap 0,25 detik);
    - `Zombie`, `Combat`, `Pickups`, dan `WaveDirector`;
+   - `Fauna` (posisi zombi aktif menjadi ancaman bagi hewan dan warga);
    - `Scene.UpdateAnimations`;
    - kamera mengikuti pemain;
    - cutaway rumah dan pohon;

@@ -149,6 +149,9 @@ def build_human(name, s):
         P.append(T.sphere("hair", hc + Vector((0, hr * 0.12, hr * 0.14)), (hr * 1.07, hr * 1.0, hr * 0.95), hair, "head", seg=20, rings=12))
         P.append(T.sphere("fringe", hc + Vector((0, -hr * 0.55, hr * 0.62)), (hr * 0.8, hr * 0.38, hr * 0.3), hair, "head", seg=14, rings=8,
                           rot=(math.radians(-20), 0, 0)))
+    if hs == "short":
+        P.append(T.sphere("side_part", hc + Vector((hr * 0.35, -hr * 0.3, hr * 0.72)), (hr * 0.55, hr * 0.45, hr * 0.28), hair, "head", seg=12, rings=8,
+                          rot=(math.radians(-15), math.radians(-12), 0)))
     if hs == "kid":
         for i, (x, z) in enumerate(((-0.08, 0.95), (0.03, 1.0), (0.12, 0.9), (-0.16, 0.82))):
             P.append(T.cyl("spike", hc + Vector((x, -hr * 0.2, hr * z * 0.9)), hc + Vector((x * 1.4, -hr * 0.55, hr * (z + 0.3))), 0.06, hair, r1=0.0, bone="head", verts=6))
@@ -158,9 +161,10 @@ def build_human(name, s):
         P.append(T.sphere("mustache", hc + Vector((0, -hr * 0.9, -hr * 0.3)), (hr * 0.42, 0.06, hr * 0.1), hair, "head", seg=12, rings=6))
     if hs == "hijab":
         hij = T.mat(name + "_hijab", s.hair, 0.85)
-        P.append(T.sphere("hijab", hc + Vector((0, hr * 0.1, hr * 0.02)), (hr * 1.12, hr * 1.08, hr * 1.1), hij, "head", seg=20, rings=12))
+        # pushed back so the face stays open, framed by the ring below
+        P.append(T.sphere("hijab", hc + Vector((0, hr * 0.32, hr * 0.06)), (hr * 1.12, hr * 0.98, hr * 1.1), hij, "head", seg=20, rings=12))
         P.append(T.cyl("hijab_drape", hc + Vector((0, hr * 0.15, -hr * 0.6)), neck + Vector((0, 0.02, -0.22)), hr * 0.85, hij, r1=s.shoulder * 1.15, bone="chest", verts=16))
-        P.append(T.torus("hijab_face", hc + Vector((0, -hr * 0.78, -hr * 0.08)), hr * 0.72, 0.05, hij, "head", rot=(math.pi / 2, 0, 0), seg=18, ring_seg=6))
+        P.append(T.torus("hijab_face", hc + Vector((0, -hr * 0.62, -hr * 0.04)), hr * 0.78, hr * 0.12, hij, "head", rot=(math.pi / 2, 0, 0), seg=20, ring_seg=8))
 
     # ---- extras on the head
     if "peci" in s.extras:
@@ -184,6 +188,12 @@ def build_human(name, s):
         col = T.mat(name + "_collar", 0xF5F5F0, 0.8)
         for sx in (-1, 1):
             P.append(T.box("collar", neck + Vector((sx * 0.06, -0.07, -0.04)), (0.09, 0.02, 0.07), col, "chest", rot=(0.3, 0, sx * 0.5)))
+    if "shirt_collar" in s.extras:
+        for sx in (-1, 1):
+            P.append(T.box("shirt_collar", neck + Vector((sx * 0.055, -0.055, -0.035)), (0.08, 0.018, 0.06), top, "chest", rot=(0.35, 0, sx * 0.55)))
+    if "hem" in s.extras:
+        P.append(T.cyl("hem", hip + Vector((0, 0, 0.16)), hip + Vector((0, 0, 0.04)), s.shoulder * 0.9 * g, top, r1=s.shoulder * 0.95 * g,
+                       bone="hips", verts=18))
     if "tie" in s.extras:
         tie = T.mat("tie_red", 0xC62828, 0.7)
         P.append(T.box("tie", Vector((0, -0.15 * dp * g - 0.005, chest.z + 0.02)), (0.05, 0.02, 0.2), tie, "chest", bevel=0.01))
@@ -200,8 +210,10 @@ def build_human(name, s):
         t_bot = (hip.z + 0.08 - z_bot) / (hip.z + 0.08 - 0.12)
         y_top, y_bot = -(r_top + (r_bot - r_top) * t_top) - 0.012, -(r_top + (r_bot - r_top) * t_bot) - 0.012
         tilt = math.atan2(y_top - y_bot, z_top - z_bot)
-        P.append(T.box("apron", Vector((0, (y_top + y_bot) / 2, (z_top + z_bot) / 2)), (s.shoulder * 1.15, 0.012, z_top - z_bot), ap, "hips",
-                       rot=(tilt, 0, 0)))
+        # a rounded cloth panel (as in the art) instead of a box
+        P.append(T.sphere("apron", Vector((0, (y_top + y_bot) / 2 - 0.01, (z_top + z_bot) / 2)), (s.shoulder * 0.62, 0.012, (z_top - z_bot) * 0.55), ap,
+                          "hips", seg=16, rings=10, rot=(tilt, 0, 0)))
+        P.append(T.box("apron_band", Vector((0, y_top - 0.004, z_top + 0.01)), (s.shoulder * 1.9, 0.01, 0.03), ap, "hips", rot=(tilt, 0, 0)))
     if "badge" in s.extras:
         bd = T.mat("badge", 0xE8C04A, 0.4, 0.6)
         P.append(T.box("badge", Vector((0.08, -0.155 * g, chest.z + 0.06)), (0.05, 0.015, 0.05), bd, "chest", bevel=0.005))
@@ -215,7 +227,10 @@ def build_human(name, s):
         fore_mat = sleeve if s.top_sleeve == "long" else skin
         P.append(T.cyl("forearm", el, wr, 0.046 * g, fore_mat, r1=0.04 * g, bone="forearm_" + side, verts=10))
         P.append(T.sphere("elbow", el, 0.048 * g, fore_mat if s.top_sleeve == "long" else upper_mat, "upperarm_" + side, seg=8, rings=6))
-        P.append(T.sphere("hand", (wr + fi) * 0.5, (0.055, 0.045, 0.065), skin, "hand_" + side, seg=10, rings=8))
+        P.append(T.sphere("hand", (wr + fi) * 0.5, (0.05, 0.042, 0.065), skin, "hand_" + side, seg=10, rings=8))
+        sxh = 1 if side == "L" else -1
+        P.append(T.sphere("thumb", (wr + fi) * 0.5 + Vector((-sxh * 0.03, -0.035, 0.02)), (0.018, 0.018, 0.03), skin, "hand_" + side, seg=8, rings=6,
+                          rot=(0.4, 0, 0)))
 
     # ---- legs
     for side in ("L", "R"):
@@ -259,27 +274,29 @@ def build_human(name, s):
     return arm, mesh
 
 
+# Proportions follow the reference art in art/players.png: stylised but not chibi,
+# heads about a fifth of the height for adults, longer legs and arms.
 FAMILY = {
-    "bapak": Spec(height=1.72, head=0.5, shoulder=0.25, leg=0.62, arm=0.56, girth=1.08, skin=SKIN["tan"], hair=0x1E1611,
-                  hair_style="short", top="batik", top_sleeve="short", bottom=0x24242A, shoes=0x1C1C1C, extras=("belt",),
+    "bapak": Spec(height=1.76, head=0.4, shoulder=0.23, leg=0.8, arm=0.68, girth=1.05, skin=SKIN["tan"], hair=0x1E1611,
+                  hair_style="short", top="batik", top_sleeve="short", bottom=0x24242A, shoes=0x1C1C1C, extras=("shirt_collar", "hem"),
                   weapon="bambu"),
-    "ibu": Spec(height=1.62, head=0.49, shoulder=0.22, hip_w=0.1, leg=0.56, arm=0.52, girth=0.98, skin=SKIN["light"], hair=0x2A1A12,
+    "ibu": Spec(height=1.63, head=0.39, shoulder=0.2, hip_w=0.1, leg=0.74, arm=0.62, girth=0.95, skin=SKIN["light"], hair=0x2A1A12,
                 hair_style="bun", top="kebaya", top_sleeve="long", bottom="batik_skirt", bottom_style="skirt", shoes=0xE0578E,
                 extras=("apron",), blush=0.8, weapon="wajan"),
-    "kakak": Spec(height=1.42, head=0.47, shoulder=0.2, hip_w=0.085, leg=0.48, arm=0.46, girth=0.9, skin=SKIN["tan"], hair=0x2B1D14,
-                  hair_style="kid", top=0xF7F7F2, top_sleeve="short", bottom=0xB3202A, bottom_style="shorts", shoes=0x2A2A2A,
+    "kakak": Spec(height=1.42, head=0.38, shoulder=0.18, hip_w=0.085, leg=0.61, arm=0.55, girth=0.9, skin=SKIN["tan"], hair=0x2B1D14,
+                  hair_style="short", top=0xF7F7F2, top_sleeve="short", bottom=0xB3202A, bottom_style="shorts", shoes=0x2A2A2A,
                   socks=0xFFFFFF, extras=("tie", "collar"), bounce=1.3, weapon="pentungan"),
-    "ade": Spec(height=1.22, head=0.46, shoulder=0.18, hip_w=0.08, leg=0.4, arm=0.4, girth=0.85, skin=SKIN["tan"], hair=0x3A2616,
+    "ade": Spec(height=1.3, head=0.37, shoulder=0.17, hip_w=0.08, leg=0.55, arm=0.5, girth=0.86, skin=SKIN["tan"], hair=0x3A2616,
                 hair_style="kid", top=0xA0784A, top_sleeve="short", bottom=0x5B3D22, bottom_style="shorts", shoes=0x4A2E1B,
-                socks=0x6B4E2E, extras=("scarf", "badge", "belt"), bounce=1.5, weapon="pentungan"),
-    "kake": Spec(height=1.56, head=0.47, shoulder=0.21, leg=0.54, arm=0.5, girth=0.92, skin=SKIN["old"], hair=0xEDEDED,
+                socks=0x6B4E2E, extras=("scarf", "badge", "belt", "shirt_collar"), bounce=1.5, weapon="pentungan"),
+    "kake": Spec(height=1.62, head=0.39, shoulder=0.21, leg=0.72, arm=0.63, girth=0.92, skin=SKIN["old"], hair=0xEDEDED,
                  hair_style="old", top=0xF4F4EE, top_sleeve="short", bottom="sarung", bottom_style="sarung", shoes=0x6B4A2E,
-                 extras=("peci", "glasses"), brows=0xE8E8E8, bounce=0.6, weapon="pentungan",
-                 posture=anims.Posture(spine=(10, 0, 0), chest=(8, 0, 0), head=(-14, 0, 0))),
-    "nene": Spec(height=1.5, head=0.47, shoulder=0.2, hip_w=0.095, leg=0.5, arm=0.48, girth=0.95, skin=SKIN["old"], hair=0xA566C9,
-                 hair_style="hijab", top=0xE58FA8, top_sleeve="long", bottom=0x7A4B32, bottom_style="skirt", shoes=0x9A6E4E,
-                 extras=("glasses",), brows=0x8A8A8A, blush=0.7, bounce=0.6, weapon="sapu",
-                 posture=anims.Posture(spine=(9, 0, 0), chest=(6, 0, 0), head=(-12, 0, 0))),
+                 extras=("peci", "shirt_collar"), brows=0xE8E8E8, bounce=0.6, weapon="pentungan",
+                 posture=anims.Posture(spine=(8, 0, 0), chest=(6, 0, 0), head=(-12, 0, 0))),
+    "nene": Spec(height=1.52, head=0.38, shoulder=0.19, hip_w=0.095, leg=0.66, arm=0.58, girth=0.95, skin=SKIN["old"], hair=0xA566C9,
+                 hair_style="hijab", top=0xE8A8B0, top_sleeve="long", bottom=0x7A4B32, bottom_style="skirt", shoes=0x9A6E4E,
+                 extras=(), brows=0x8A8A8A, blush=0.7, bounce=0.6, weapon="sapu",
+                 posture=anims.Posture(spine=(7, 0, 0), chest=(5, 0, 0), head=(-10, 0, 0))),
 }
 
 

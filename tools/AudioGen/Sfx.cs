@@ -489,4 +489,89 @@ public static class Sfx
 
         return Out(x);
     }
+
+    // ------------------------------------------------------------------ animals
+
+    /// <summary>Ayam: three quick "petok" clucks.</summary>
+    public static Buffer Cluck()
+    {
+        Buffer b = new(Rate, 0.75);
+        for (int k = 0; k < 3; k++)
+        {
+            double f = 520 + (k * 40);
+            b.Add(Voice(0.12, t => f * (1 + (t * 2)), "oa", 0.6f, 0.25f), k * 0.2, k == 2 ? 1f : 0.8f);
+        }
+
+        b.Normalize(0.9f);
+        return b;
+    }
+
+    /// <summary>Ayam jago: kukuruyuk!</summary>
+    public static Buffer Rooster()
+    {
+        Buffer b = new(Rate, 1.6);
+        b.Add(Voice(0.22, _ => 620, "uo", 0.5f, 0.2f), 0.0);
+        b.Add(Voice(0.18, _ => 700, "uo", 0.5f, 0.2f), 0.24);
+        b.Add(Voice(0.9, t => 760 + (140 * Math.Sin(Math.PI * t / 0.9)) - (t * 150), "uuoooa", 0.5f, 0.25f), 0.46);
+        b.Normalize(0.9f);
+        return b;
+    }
+
+    /// <summary>Sapi: a long low mooo.</summary>
+    public static Buffer Moo() => Out(Voice(1.4, t => 125 - (25 * t) + (4 * Math.Sin(t * 30)), "uuooo", 0.35f, 0.08f));
+
+    /// <summary>Kambing: a wobbly mbeeek.</summary>
+    public static Buffer Bleat() => Out(Voice(0.85, t => 360 * (1 + (0.09 * Math.Sin(t * Math.Tau * 8))), "eeeaa", 0.7f, 0.2f));
+
+    /// <summary>Kucing: meong.</summary>
+    public static Buffer Meow() => Out(Voice(0.7, t => t < 0.25 ? 520 + (900 * t) : 745 - (380 * (t - 0.25)), "iiaauo", 0.25f, 0.1f));
+
+    /// <summary>Anjing: guk guk!</summary>
+    public static Buffer Bark()
+    {
+        Buffer b = new(Rate, 0.62);
+        for (int k = 0; k < 2; k++)
+        {
+            b.Add(Voice(0.16, t => 330 - (500 * t), "ao", 0.9f, 0.45f), k * 0.3);
+        }
+
+        b.Normalize(0.9f);
+        return b;
+    }
+
+    /// <summary>Burung: a few bright tweets.</summary>
+    public static Buffer Chirp()
+    {
+        float[] x = Make(Rate, 0.6);
+        double phase = 0;
+        for (int i = 0; i < x.Length; i++)
+        {
+            double t = i / (double)Rate;
+            double local = t % 0.15;
+            double f = 3200 + (2200 * Math.Sin(Math.PI * local / 0.09));
+            phase += f / Rate;
+            float env = local < 0.09 ? (float)Math.Sin(Math.PI * local / 0.09) : 0f;
+            x[i] = MathF.Sin(Tau * (float)phase) * env * (t < 0.45 ? 1f : 0f);
+        }
+
+        return Out(x);
+    }
+
+    /// <summary>Ular: hisss.</summary>
+    public static Buffer Hiss()
+    {
+        float[] x = Make(Rate, 0.9);
+        BandPass bp = new(Rate, 5200, 3);
+        for (int i = 0; i < x.Length; i++)
+        {
+            double t = i / (double)Rate;
+            x[i] = bp.Process(Noise()) * Adsr(t, 0.9, 0.08, 0.1, 0.8f, 0.4);
+        }
+
+        return Out(x);
+    }
+
+    /// <summary>A villager's startled "waaa!" when a zombie shows up.</summary>
+    public static Buffer Scream(bool high) => Out(Voice(0.7, t => (high ? 520 : 260) * (1.25 - (0.35 * t)) * (1 + (0.04 * Math.Sin(t * 40))), "aaaa", 0.4f, 0.15f));
 }
+

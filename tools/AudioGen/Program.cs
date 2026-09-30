@@ -45,6 +45,16 @@ var jobs = new (string Name, Func<AudioGen.Buffer> Make)[]
     ("sfx_step", Sfx.Step),
     ("sfx_dodge", Sfx.Dodge),
     ("sfx_boing", Sfx.Boing),
+    ("sfx_ayam", Sfx.Cluck),
+    ("sfx_jago", Sfx.Rooster),
+    ("sfx_sapi", Sfx.Moo),
+    ("sfx_kambing", Sfx.Bleat),
+    ("sfx_kucing", Sfx.Meow),
+    ("sfx_anjing", Sfx.Bark),
+    ("sfx_burung", Sfx.Chirp),
+    ("sfx_ular", Sfx.Hiss),
+    ("sfx_teriak_pria", () => Sfx.Scream(false)),
+    ("sfx_teriak_wanita", () => Sfx.Scream(true)),
 };
 
 Parallel.ForEach(jobs, job =>

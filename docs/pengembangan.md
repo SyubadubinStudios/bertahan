@@ -23,7 +23,8 @@ Selain `out.png`, dibuat juga `out.png.txt` berisi ringkasan: gelombang, fase, s
 
 | Opsi | Arti |
 |---|---|
-| `--scene` | `title`, `name`, `difficulty`, `chars`, `map`, `loading`, `scores`, `options`, `controls`, `about`, `ending`, `opening`, `level` |
+| `--scene` | `title`, `village` (latar desa saja), `name`, `difficulty`, `chars`, `map`, `loading`, `scores`, `options`, `controls`, `about`, `ending`, `opening`, `level` |
+| `--cam x,y,z,tx,ty,tz` | Mengunci kamera latar menu di posisi dan target tertentu (untuk close-up desa) |
 | `--frames N` | Jumlah frame dirender sebelum capture (default 30) |
 | `--warp S` | Maju cepat S detik simulasi: waktu desa di menu, atau lama pertarungan di level |
 | `--time S` | Posisi waktu untuk `opening` dan `about` |
