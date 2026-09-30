@@ -17,14 +17,19 @@
   - Hewan ternak dan hewan liar: ayam, sapi, kambing, kucing, anjing, ular, dan burung. Semuanya punya model, rig, dan animasi dari Blender, juga suaranya masing-masing.
   - Mereka mematuk, merumput, mengeong, dan menggonggong. Saat zombi mendekat, semuanya kabur dan burung beterbangan. Semua ini ada di menu, cerita pembuka, dan setiap level.
 - **Alur New Game:** Input Nama (bawaan *Si Otong*), lalu Tingkat Kesulitan (**Bayi**, **Pemberani**, **Mimpi Buruk**), lalu Pilih Karakter, lalu Mulai.
-- **4 level** dengan suasana berbeda: Gerbang Kampung (siang), Sawah Berhantu (malam), Pasar Lama (sore, gerimis), dan Kuburan Terbengkalai (malam, hujan dan petir). **Level 5 sampai 10 segera hadir.**
+- **10 level** dengan suasana berbeda:
+  - Kampung Damai: Gerbang Kampung (siang), Sawah Berhantu (malam), Pasar Lama (sore, gerimis), dan Kuburan Terbengkalai (malam, hujan dan petir).
+  - Zona Terlarang: Jembatan Bambu (sungai berkabut), Sekolah Terbengkalai, Kuburan Kuno, Hutan Larangan (rawa), Masjid Rusak (kampung terbakar di bawah pusaran kutukan), dan Candi Terlarang (pusat ritual).
+- **Delapan bos dari cerita rakyat:** Genderuwo dan Dukun Zombi, lalu Jeng Roro Kembang Malam di sumur tua, Kuntilanak Penguasa Kutukan berkepala lima, Genderuwo Raja, Kraken Raja di rawa, Leviathan Kuno berkepala tiga, dan Demon King Abyss.
+- **Enam musuh tambahan:** Tuyul Serdadu yang menembak, Siluman Harimau yang menerkam, Pocong Penjaga berantai, Kuntilanak Geni berambut api, Genderuwo Raksasa, dan Dukun Santet.
 - **Nyawa dan kesempatan ulang.** Setiap level diberi beberapa nyawa. Jika nyawa habis, level diulang, maksimal 3 kali. Jika kesempatan juga habis, petualangan dimulai lagi dari Level 1.
 - **Top Skor per level** berisi nama pemain, karakter, tingkat kesulitan, dan tanggal.
-- **Pertarungan yang seru:** kombo pengali skor, *hit-stop*, guncangan kamera, angka damage, bom molotov yang membakar area, bos dengan serangan khusus, dan tujuh jenis zombi.
+- **Pertarungan yang seru:** kombo pengali skor, *hit-stop*, guncangan kamera, angka damage, bom molotov yang membakar area, bos dengan pola serangan khusus (hantaman bertanda lingkaran, semburan bola api, jeritan, panggilan anak buah), dan tiga belas jenis zombi biasa.
 - **Lingkungan yang hidup:**
   - Skybox bertekstur (matahari, bulan, bintang, siluet gunung).
   - Awan yang bergerak beserta bayangannya di tanah.
-  - Kabut misteri di sawah dan kuburan.
+  - Kabut misteri di sawah, sungai, hutan, dan kuburan.
+  - Langit Kutukan merah dengan pusaran hijau dan bara api yang beterbangan.
   - Hujan dengan cipratan air, petir, dan kunang-kunang.
   - Pohon, bambu, semak, rumput, dan padi yang bergoyang tertiup angin.
 - **Musik dan efek suara** yang disintesis secara prosedural, termasuk suara 3D posisional.
@@ -35,9 +40,15 @@
 |---|---|
 | ![Level 1](docs/images/level-1.jpg) | ![Level 2](docs/images/level-2.jpg) |
 | ![Level 3](docs/images/level-3.jpg) | ![Level 4](docs/images/level-4.jpg) |
+| ![Level 5](docs/images/level-5.jpg) | ![Level 6](docs/images/level-6.jpg) |
+| ![Bos Level 9](docs/images/bos-level-9.jpg) | ![Bos Level 10](docs/images/bos-level-10.jpg) |
 | ![Kehidupan desa](docs/images/desa-hidup-1.jpg) | ![Warga dan ternak](docs/images/desa-hidup-4.jpg) |
 
-## Menjalankan game
+## Unduh dan pasang
+
+Paket siap pakai untuk **Windows** (installer dan zip), **Linux** (tar.gz dengan `install.sh`), dan **macOS** (dmg untuk Apple Silicon dan Intel) ada di halaman [Releases](https://github.com/SyubadubinStudios/bertahan/releases). Tidak perlu memasang .NET. Panduan lengkap, termasuk cara membuat rilis sendiri, ada di [docs/instalasi.md](docs/instalasi.md).
+
+## Menjalankan dari kode sumber
 
 Kebutuhan:
 - .NET 10 SDK
@@ -72,6 +83,7 @@ Saat pertama kali dijalankan, cerita pembuka akan diputar otomatis. Cerita ini b
 
 Dokumentasi lengkap ada di folder [`docs/`](docs/README.md):
 
+- [Instalasi dan rilis](docs/instalasi.md): unduh, pasang di Windows/Linux/macOS, membuat paket rilis
 - [Cara bermain](docs/cara-bermain.md): karakter, senjata, zombi, level, skor, nyawa
 - [Menu dan antarmuka](docs/menu-dan-antarmuka.md): semua layar beserta screenshot
 - [Lingkungan dan atmosfer](docs/lingkungan.md): langit, awan, kabut, hujan, angin

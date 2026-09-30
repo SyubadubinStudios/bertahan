@@ -1,0 +1,95 @@
+# Membuat paket instalasi untuk semua platform dan menerbitkannya di GitHub Releases.
+#   - push tag v* (mis. `git tag v1.0.0 && git push origin v1.0.0`) -> build + rilis
+#   - Actions > Rilis > Run workflow -> build saja (paket bisa diunduh dari artifact)
+name: Rilis
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+          - os: ubuntu-latest
+            name: linux
+          - os: macos-latest
+            name: macos
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Versi
+        id: ver
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then v="${GITHUB_REF_NAME#v}"
+          else v="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/Bertahan/Bertahan.csproj)"; fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      - name: Paket Windows (zip + installer Inno Setup)
+        if: matrix.name == 'windows'
+        shell: pwsh
+        run: |
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue) -and -not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup --no-progress -y
+          }
+          ./packaging/release.ps1 -Version ${{ steps.ver.outputs.version }} -Rids win-x64
+          if (-not (Test-Path "dist/Bertahan-${{ steps.ver.outputs.version }}-windows-x64-setup.exe")) { throw "installer tidak terbuat" }
+
+      - name: Paket Linux (tar.gz + install.sh)
+        if: matrix.name == 'linux'
+        run: bash packaging/release.sh --version ${{ steps.ver.outputs.version }} --rid linux-x64
+
+      - name: Paket macOS (dmg Intel + Apple Silicon)
+        if: matrix.name == 'macos'
+        run: bash packaging/release.sh --version ${{ steps.ver.outputs.version }} --rid osx-arm64 --rid osx-x64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bertahan-${{ matrix.name }}
+          path: |
+            dist/Bertahan-*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksum
+        run: cd dist && sha256sum Bertahan-* > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Bertahan ${{ github.ref_name }}
+          files: dist/*
+          generate_release_notes: true
+          body: |
+            **Bertahan**: pertahankan Kampung Damai dari serbuan zombi!
+
+            | Platform | Unduh |
+            |---|---|
+            | Windows 10/11 (64-bit) | `Bertahan-*-windows-x64-setup.exe` (installer) atau `-windows-x64.zip` (portabel) |
+            | Linux (x64) | `Bertahan-*-linux-x64.tar.gz`, lalu jalankan `./install.sh` |
+            | macOS Apple Silicon (M1/M2/M3/M4) | `Bertahan-*-macos-arm64.dmg` |
+            | macOS Intel | `Bertahan-*-macos-x64.dmg` |
+
+            Panduan pemasangan lengkap: [docs/instalasi.md](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/docs/instalasi.md)

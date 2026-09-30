@@ -75,7 +75,7 @@ public sealed class TitleScreen : Screen
         };
         Children.Add(_newsBox);
 
-        TextBlock credit = Kit.Text("Subadubin Studios  -  v1.0", 13, Kit.White, FontWeight.Bold);
+        TextBlock credit = Kit.Text($"Subadubin Studios  -  v{typeof(TitleScreen).Assembly.GetName().Version?.ToString(3)}", 13, Kit.White, FontWeight.Bold);
         credit.HorizontalAlignment = HorizontalAlignment.Right;
         credit.VerticalAlignment = VerticalAlignment.Top;
         credit.Margin = new Thickness(0, 16, 24, 0);

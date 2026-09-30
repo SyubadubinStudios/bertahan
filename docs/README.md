@@ -6,6 +6,7 @@ Selamat datang di dokumentasi **Bertahan**, game 3D survival zombi di perkampung
 
 | Dokumen | Isi |
 |---|---|
+| [Instalasi dan rilis](instalasi.md) | Unduh dan pasang di Windows, Linux, macOS; membuat paket rilis dan installer |
 | [Cara bermain](cara-bermain.md) | Tujuan, kontrol, keluarga pahlawan, senjata, zombi, level, tingkat kesulitan, skor, nyawa dan kesempatan ulang |
 | [Menu dan antarmuka](menu-dan-antarmuka.md) | Cerita pembuka, menu utama, alur New Game, peta, HUD, pause, hasil level, Top Skor, Pilihan, Tentang |
 | [Lingkungan dan atmosfer](lingkungan.md) | Skybox, awan bergerak, bayangan awan, kabut, hujan, petir, kunang-kunang, angin |

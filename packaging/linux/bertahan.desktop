@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Bertahan
+GenericName=Game Zombi
+Comment=Pertahankan Kampung Damai dari serbuan zombi!
+Exec=@EXEC@
+Path=@PATH@
+Icon=bertahan
+Terminal=false
+Categories=Game;ActionGame;
+Keywords=zombi;zombie;survival;kampung;
+StartupWMClass=Bertahan

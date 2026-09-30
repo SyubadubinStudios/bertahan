@@ -1,0 +1,4 @@
+# Shell scripts, desktop entries and plists ship to Linux/macOS: keep LF
+*.sh text eol=lf
+*.desktop text eol=lf
+*.plist text eol=lf
