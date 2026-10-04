@@ -12,7 +12,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Product>Bertahan</Product>
     <Company>Subadubin Studios</Company>
     <Authors>Ariana Mischa Fadhila</Authors>
