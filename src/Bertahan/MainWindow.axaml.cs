@@ -33,6 +33,7 @@ public partial class MainWindow : Window, IShell
     private readonly ShotOptions? _shot;
     private readonly Autopilot? _autopilot;
     private readonly ThreeNet.Scene _bootScene;
+    private readonly ThreeNet.Node _bootCamera;
     private ThreeNetView _view;
     private OpeningStage? _opening;
     private int _bootFrames;
@@ -73,7 +74,8 @@ public partial class MainWindow : Window, IShell
         // the view only starts its loop once it has something to draw
         _bootScene = new ThreeNet.Scene();
         _view = NewView();
-        SetScene(_bootScene, _bootScene.AddCamera(ThreeNet.Camera.Perspective(1f), Vector3.UnitZ));
+        _bootCamera = _bootScene.AddCamera(ThreeNet.Camera.Perspective(1f), Vector3.UnitZ);
+        SetScene(_bootScene, _bootCamera);
         ApplySettings();
 
         AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
@@ -252,8 +254,7 @@ public partial class MainWindow : Window, IShell
         _paused = false;
         _resultShown = false;
         Hud(null);
-        Session?.Dispose();
-        Session = null;
+        EndSession();
         Mode = ShellMode.Loading;
         _loadFrames = 0;
         ClearScreens();
@@ -305,15 +306,31 @@ public partial class MainWindow : Window, IShell
 
     public void QuitToTitle()
     {
-        Session?.Dispose();
-        Session = null;
         Hud(null);
+        EndSession();
         _paused = false;
         EnterMenu();
         ToTitle();
     }
 
     public void Exit() => Close();
+
+    /// <summary>
+    /// Drops the current level. The view still draws its scene, and disposing a scene
+    /// under a live renderer stops the frame loop (or crashes), so the view moves to the
+    /// empty boot scene first and the old scene is freed once the old view is gone.
+    /// </summary>
+    private void EndSession()
+    {
+        if (Session is not { } old)
+        {
+            return;
+        }
+
+        Session = null;
+        SetScene(_bootScene, _bootCamera);
+        Avalonia.Threading.Dispatcher.UIThread.Post(old.Dispose, Avalonia.Threading.DispatcherPriority.Background);
+    }
 
     private void LevelFinished(GameSession s)
     {
@@ -368,7 +385,7 @@ public partial class MainWindow : Window, IShell
     /// </summary>
     private void SetScene(ThreeNet.Scene scene, ThreeNet.Node camera)
     {
-        if (_view.Scene is { } current && current != scene && current != _bootScene)
+        if (_view.Scene is { } current && current != scene)
         {
             _view = NewView();
             ApplySettings();
@@ -775,6 +792,11 @@ public partial class MainWindow : Window, IShell
             {
                 case "pause": w.Pause(); break;
                 case "result" when s.Finished: w.LevelFinished(s); break;
+                case "next" when s.Finished:
+                    // the result screen's "next level": load another level from a finished one
+                    w.LevelFinished(s);
+                    w.PlayLevel();
+                    break;
                 case "preview":
                     // a clean cinematic view for loading screens and docs: no HUD, low camera
                     w._paused = true;

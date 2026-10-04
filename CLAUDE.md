@@ -19,7 +19,7 @@ dotnet build src/Bertahan/Bertahan.csproj
 dotnet run --project src/Bertahan
 
 # Headless screenshot run: renders, writes out.png + out.png.txt (state summary), exits
-src/Bertahan/bin/Debug/net10.0/Bertahan.exe --shot out.png --scene <title|village|name|difficulty|chars|map|loading|scores|options|controls|about|ending|opening|level> [--level N] [--warp S] [--autoplay] [--overlay pause|result|preview] [--time S] [--cam x,y,z,tx,ty,tz] [--wave N] [--char id] [--difficulty Bayi] [--frames N]
+src/Bertahan/bin/Debug/net10.0/Bertahan.exe --shot out.png --scene <title|village|name|difficulty|chars|map|loading|scores|options|controls|about|ending|opening|level> [--level N] [--warp S] [--autoplay] [--overlay pause|result|next|preview] [--time S] [--cam x,y,z,tx,ty,tz] [--wave N] [--char id] [--difficulty Bayi] [--frames N]
 
 # Regenerate procedural audio (WAV) into src/Bertahan/Assets/Audio
 dotnet run --project tools/AudioGen
